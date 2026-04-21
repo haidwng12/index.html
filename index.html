@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Phantom Rental - Mua key trực tiếp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        body { background: radial-gradient(ellipse at 20% 30%, #0A1F1A, #030D08); background-attachment: fixed; }
+        .glass-card { background: rgba(10, 25, 20, 0.65); backdrop-filter: blur(12px); border: 1px solid rgba(16, 185, 129, 0.3); transition: all 0.3s; border-radius: 1.5rem; }
+        .glass-card:hover { border-color: #10b981; transform: translateY(-4px); box-shadow: 0 20px 35px -12px rgba(0,0,0,0.4); }
+        .btn-primary { background: linear-gradient(90deg, #10b981, #059669); transition: all 0.2s; box-shadow: 0 4px 12px rgba(16,185,129,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16,185,129,0.5); }
+        .btn-outline { border: 1px solid #10b981; background: transparent; transition: 0.2s; }
+        .btn-outline:hover { background: rgba(16,185,129,0.15); border-color: #34d399; }
+        .admin-tab { background: rgba(30, 40, 35, 0.7); backdrop-filter: blur(4px); border-radius: 2rem; padding: 0.5rem 1.25rem; margin-right: 0.5rem; margin-bottom: 0.5rem; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; display: inline-block; }
+        .admin-tab.active { background: #10b981; color: #0f172a; border-color: #10b981; font-weight: 600; }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: #1A2A24; border-radius: 1.5rem; padding: 1.5rem; max-width: 500px; width: 90%; border: 1px solid #10b981; }
+        .fullscreen-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: center; z-index: 2000; flex-direction: column; }
+        .fullscreen-modal-content { background: #1A2A24; border-radius: 2rem; padding: 2rem; max-width: 600px; width: 90%; text-align: center; border: 2px solid #10b981; box-shadow: 0 0 40px rgba(16,185,129,0.3); }
+        .key-list { background: #0F1F1A; padding: 0.75rem; border-radius: 0.75rem; font-family: monospace; border-left: 3px solid #10b981; }
+        .zalo-float {
+            position: fixed;
+            bottom: 24px;
+            right: 80px;
+            background: #0068FF;
+            color: white;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 100;
+            transition: 0.2s;
+            text-decoration: none;
+        }
+        .zalo-float:hover { transform: scale(1.1); background: #0050cc; }
+        .zalo-float i { font-size: 32px; }
+        .toast { position: fixed; bottom: 20px; right: 20px; z-index: 1000; animation: slideIn 0.3s ease-out; background: #1A2A24; backdrop-filter: blur(12px); padding: 10px 20px; border-radius: 40px; border-left: 4px solid #10b981; color: white; }
+        .toast-error { border-left-color: #ef4444; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        input, select, textarea { background: #1A2A24; border: 1px solid #2D4A3E; border-radius: 1rem; padding: 0.5rem 1rem; color: #e2e8f0; outline: none; }
+        input:focus, select:focus, textarea:focus { border-color: #10b981; box-shadow: 0 0 0 2px rgba(16,185,129,0.2); }
+        .ticket-message { background: rgba(30, 40, 35, 0.5); border-radius: 1rem; padding: 0.75rem; margin-bottom: 0.75rem; }
+        .ticket-message.admin { background: rgba(16, 185, 129, 0.15); border-left: 3px solid #10b981; }
+        .ticket-message.user { background: rgba(59, 130, 246, 0.15); border-left: 3px solid #3b82f6; }
+    </style>
+</head>
+<body class="text-gray-200">
+
+<a href="https://zalo.me/0935763789" target="_blank" class="zalo-float"><i class="fab fa-zalo"></i></a>
+
+<div id="appContent" class="min-h-screen flex flex-col" style="display: none;">
+    <header class="sticky top-0 z-30 bg-gray-900/70 backdrop-blur-md border-b border-green-500/40">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center flex-wrap gap-3">
+            <div class="flex items-center gap-2">
+                <div class="w-9 h-9 bg-gradient-to-br from-green-500 to-emerald-700 rounded-xl flex items-center justify-center shadow-lg">
+                    <i class="fas fa-key text-white text-lg"></i>
+                </div>
+                <span class="text-xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">Phantom Rental</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="text-sm bg-gray-800/80 px-3 py-1.5 rounded-full"><i class="fas fa-coins text-yellow-400 mr-1"></i> <span id="balanceDisplay">0</span>đ</span>
+                <a href="#" data-page="home" class="nav-link text-gray-300 hover:text-green-400 transition font-medium">Trang chủ</a>
+                <a href="#" data-page="profile" class="nav-link text-gray-300 hover:text-green-400 transition font-medium">Hồ sơ</a>
+                <a href="#" data-page="affiliate" class="nav-link text-gray-300 hover:text-green-400 transition font-medium">Tiếp thị</a>
+                <a href="#" data-page="history" class="nav-link text-gray-300 hover:text-green-400 transition font-medium">Lịch sử</a>
+                <a href="#" data-page="support" class="nav-link text-gray-300 hover:text-green-400 transition font-medium">Hỗ trợ</a>
+                <div id="userMenu" class="relative">
+                    <button id="userBtn" class="flex items-center gap-2 bg-gray-800/80 px-3 py-1.5 rounded-full hover:bg-gray-700 transition">
+                        <i class="fas fa-user-circle text-green-400"></i> <span id="usernameDisplay">Tài khoản</span> <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+                    <div id="userDropdown" class="absolute right-0 mt-2 w-44 bg-gray-800 rounded-xl shadow-xl border border-gray-700 hidden z-30">
+                        <div id="adminLink" class="hidden"><a href="#" data-page="admin" class="nav-link block px-4 py-2 hover:bg-gray-700">Admin panel</a></div>
+                        <a href="#" id="logoutBtn" class="block px-4 py-2 hover:bg-gray-700">Đăng xuất</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main class="flex-grow container mx-auto px-4 py-8"><div id="pageContent"></div></main>
+    <footer class="text-center py-6 text-gray-500 text-sm border-t border-gray-800/50">© 2025 Phantom Rental - Mua key trực tiếp | Zalo: 0935763789</footer>
+</div>
+
+<script>
+    // ==================== DỮ LIỆU ====================
+    let db = { users: [], packages: [], bundles: [], keys: [], orders: [], rechargeRequests: [], announcements: [], subAnnouncements: [], resetTokens: [], affiliateSettings: { commissionPercent: 10 }, coupons: [], versions: [], tickets: [] };
+    let lastOrderCount = 0, lastRechargeCount = 0;
+    let currentUser = null, hideAnnouncementsUntil = 0;
+    let announcementShownThisSession = false;
+
+    function initSampleData() {
+        if (localStorage.getItem('rental_db')) { 
+            db = JSON.parse(localStorage.getItem('rental_db'));
+            if (!db.bundles) db.bundles = [];
+            if (!db.announcements) db.announcements = [];
+            if (!db.subAnnouncements) db.subAnnouncements = [];
+            if (!db.resetTokens) db.resetTokens = [];
+            if (!db.affiliateSettings) db.affiliateSettings = { commissionPercent: 10 };
+            if (!db.coupons) db.coupons = [];
+            if (!db.versions) db.versions = [];
+            if (!db.tickets) db.tickets = [];
+            db.users.forEach(u => {
+                if (!u.fullName) u.fullName = u.username;
+                if (!u.phone) u.phone = "";
+                if (!u.address) u.address = "";
+                if (!u.referralCode) u.referralCode = u.username + Math.random().toString(36).substring(2, 6).toUpperCase();
+                if (!u.referrals) u.referrals = [];
+                if (!u.commissionEarned) u.commissionEarned = 0;
+            });
+            db.orders.forEach(o => { if (o.referralBy === undefined) o.referralBy = null; if (o.couponCode === undefined) o.couponCode = null; });
+            db.keys.forEach(k => { if (k.activatedAt === undefined) k.activatedAt = null; if (k.expiresAt === undefined) k.expiresAt = null; if (k.autoRenew === undefined) k.autoRenew = false; });
+            lastOrderCount = db.orders.length;
+            lastRechargeCount = db.rechargeRequests.filter(r => r.status === 'pending').length;
+            return; 
+        }
+        db.users = [
+            { id: 1, username: "haidangrb", password: "hd@763789", email: "admin@rental.com", role: "admin", balance: 0, fullName: "Hải Đăng", phone: "0935763789", address: "Hà Nội", createdAt: new Date().toISOString(), referralCode: "ADMIN", referrals: [], commissionEarned: 0 },
+            { id: 2, username: "demo", password: "demo123", email: "demo@rental.com", role: "user", balance: 100000, fullName: "Nguyễn Văn Demo", phone: "0987654321", address: "TP HCM", createdAt: new Date().toISOString(), referralCode: "DEMO", referrals: [], commissionEarned: 0 }
+        ];
+        db.packages = [
+            { id: 1, name: "Gói 1 ngày", days: 1, price: 50000 },
+            { id: 2, name: "Gói 7 ngày", days: 7, price: 200000 },
+            { id: 3, name: "Gói 30 ngày", days: 30, price: 500000 }
+        ];
+        db.bundles = [
+            { id: 1, name: "Combo Tiết kiệm", description: "1 gói 7 ngày + 1 gói 30 ngày", price: 600000, items: [{ packageId: 2, quantity: 1 }, { packageId: 3, quantity: 1 }] }
+        ];
+        db.keys = [
+            { id: 1, packageId: 1, code: "KEY-1D-ABC123", used: false, orderId: null, activatedAt: null, expiresAt: null, autoRenew: false },
+            { id: 2, packageId: 1, code: "KEY-1D-DEF456", used: false, orderId: null, activatedAt: null, expiresAt: null, autoRenew: false },
+            { id: 3, packageId: 2, code: "KEY-7D-XYZ789", used: false, orderId: null, activatedAt: null, expiresAt: null, autoRenew: false },
+            { id: 4, packageId: 2, code: "KEY-7D-UVW111", used: false, orderId: null, activatedAt: null, expiresAt: null, autoRenew: false },
+            { id: 5, packageId: 3, code: "KEY-30D-COMBO", used: false, orderId: null, activatedAt: null, expiresAt: null, autoRenew: false },
+            { id: 6, packageId: 3, code: "KEY-30D-EXTRA", used: false, orderId: null, activatedAt: null, expiresAt: null, autoRenew: false }
+        ];
+        db.orders = [];
+        db.rechargeRequests = [];
+        db.announcements = [
+            { id: 1, content: "🔥 Cập nhật Phantom Anchor PRO v3.0: Thêm chức năng báo cáo ảnh nude, tăng tốc độ 200%.", createdAt: new Date().toISOString(), createdBy: "admin" },
+            { id: 2, content: "🎁 KHUYẾN MÃI: Giảm 30% cho gói 30 ngày khi nhập mã 'PHANTOM30' (áp dụng đến hết tháng).", createdAt: new Date().toISOString(), createdBy: "admin" }
+        ];
+        db.subAnnouncements = [
+            { id: 1, content: "⚡ Bảo trì hệ thống từ 2h - 3h sáng hằng ngày.", createdAt: new Date().toISOString(), createdBy: "admin" },
+            { id: 2, content: "💰 Mua 2 gói 30 ngày tặng 1 gói 7 ngày. Liên hệ Zalo ngay!", createdAt: new Date().toISOString(), createdBy: "admin" }
+        ];
+        db.resetTokens = [];
+        db.affiliateSettings = { commissionPercent: 10 };
+        db.coupons = [
+            { id: 1, code: "GREEN10", type: "percent", value: 10, maxUses: 100, usedCount: 0, expiresAt: new Date(Date.now() + 30*24*60*60*1000).toISOString() },
+            { id: 2, code: "SALE20", type: "percent", value: 20, maxUses: 50, usedCount: 0, expiresAt: new Date(Date.now() + 15*24*60*60*1000).toISOString() }
+        ];
+        db.versions = [
+            { id: 1, tool: "fb", version: "3.0.0", downloadUrl: "https://raw.githubusercontent.com/haidwng11/reportfb/main/reportfbhaidwng", changelog: "Thêm báo cáo ảnh nude, tăng tốc độ", createdAt: new Date().toISOString() },
+            { id: 2, tool: "olm", version: "2.1.0", downloadUrl: "https://raw.githubusercontent.com/haidwng11/olm/main/olmhaidwng", changelog: "Cập nhật bảng đáp án mới", createdAt: new Date().toISOString() }
+        ];
+        db.tickets = [];
+        localStorage.setItem('rental_db', JSON.stringify(db));
+        lastOrderCount = 0; lastRechargeCount = 0;
+    }
+    function saveDb() { 
+        localStorage.setItem('rental_db', JSON.stringify(db));
+        if (currentUser && currentUser.role === 'admin') {
+            if (db.orders.length > lastOrderCount) { showToast(`📢 Có ${db.orders.length - lastOrderCount} đơn hàng mới!`, 'success'); lastOrderCount = db.orders.length; }
+            const pending = db.rechargeRequests.filter(r => r.status === 'pending').length;
+            if (pending > lastRechargeCount) { showToast(`💰 Có ${pending - lastRechargeCount} yêu cầu nạp mới!`, 'success'); lastRechargeCount = pending; }
+        }
+    }
+    function loadCurrentUser() {
+        const userId = localStorage.getItem('rental_userId');
+        if (userId) currentUser = db.users.find(u => u.id == userId);
+        updateUIForUser();
+        if (currentUser && currentUser.role === 'admin') { lastOrderCount = db.orders.length; lastRechargeCount = db.rechargeRequests.filter(r => r.status === 'pending').length; }
+        const savedHide = localStorage.getItem('hideAnnouncementsUntil');
+        if (savedHide) hideAnnouncementsUntil = parseInt(savedHide); else hideAnnouncementsUntil = 0;
+    }
+    function setCurrentUser(user) {
+        currentUser = user;
+        if (user) localStorage.setItem('rental_userId', user.id); else localStorage.removeItem('rental_userId');
+        updateUIForUser();
+        if (user) { 
+            document.getElementById('appContent').style.display = 'flex';
+            if (user.role === 'admin') { lastOrderCount = db.orders.length; lastRechargeCount = db.rechargeRequests.filter(r => r.status === 'pending').length; }
+            renderCurrentPage(); 
+            if (!announcementShownThisSession && hideAnnouncementsUntil <= Date.now()) {
+                showFullscreenAnnouncement();
+                announcementShownThisSession = true;
+            }
+        } else { document.getElementById('appContent').style.display = 'none'; showAuthModal(); }
+    }
+    function updateUIForUser() {
+        if (!currentUser) return;
+        document.getElementById('usernameDisplay').innerText = currentUser.username;
+        document.getElementById('adminLink').style.display = currentUser.role === 'admin' ? 'block' : 'none';
+        document.getElementById('balanceDisplay').innerText = (currentUser.balance || 0).toLocaleString();
+    }
+
+    // ==================== THÔNG BÁO FULL MÀN HÌNH ====================
+    function showFullscreenAnnouncement() {
+        if (!db.announcements.length) return;
+        const announcement = db.announcements[0];
+        const modalHtml = `
+            <div id="fullscreenModal" class="fullscreen-modal">
+                <div class="fullscreen-modal-content">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-green-400"><i class="fas fa-bullhorn mr-2"></i>Thông báo quan trọng</h2>
+                        <button onclick="document.getElementById('fullscreenModal').remove()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+                    </div>
+                    <p class="text-gray-200 text-lg mb-4">${announcement.content}</p>
+                    <p class="text-sm text-gray-400 mb-6">${new Date(announcement.createdAt).toLocaleString()} - ${announcement.createdBy}</p>
+                    <div class="flex gap-3">
+                        <button onclick="hideFullscreenFor5Hours()" class="flex-1 bg-gray-700 hover:bg-gray-600 py-2 rounded-lg text-sm"><i class="fas fa-clock mr-1"></i>Không hiển thị lại trong 5 giờ</button>
+                        <button onclick="document.getElementById('fullscreenModal').remove()" class="flex-1 btn-primary py-2 rounded-lg">Đóng</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+    function hideFullscreenFor5Hours() {
+        hideAnnouncementsUntil = Date.now() + 5 * 60 * 60 * 1000;
+        localStorage.setItem('hideAnnouncementsUntil', hideAnnouncementsUntil);
+        const modal = document.getElementById('fullscreenModal');
+        if (modal) modal.remove();
+        showToast("Tạm ẩn thông báo trong 5 giờ", "success");
+    }
+
+    // ==================== CAPTCHA ====================
+    let currentCaptcha = null;
+    function generateCaptcha() { const a = Math.floor(Math.random()*10)+1, b = Math.floor(Math.random()*10)+1; currentCaptcha = { answer: a+b, question: `${a} + ${b} = ?` }; return currentCaptcha.question; }
+    function renderCaptcha() { return `<div class="mb-3"><label class="block mb-1 text-gray-300">Xác minh: ${generateCaptcha()}</label><input type="text" id="captchaAnswer" class="w-full bg-gray-800 px-3 py-2 rounded-lg" placeholder="Nhập kết quả"></div>`; }
+    function verifyCaptcha() { const ans = document.getElementById('captchaAnswer')?.value.trim(); if (!ans || parseInt(ans) !== currentCaptcha.answer) { showToast("Mã xác minh sai!", "error"); return false; } return true; }
+
+    // ==================== GỬI EMAIL RESET ====================
+    async function sendResetLink(email, resetLink, userName) {
+        const scriptUrl = "https://script.google.com/macros/s/AKfycbx4OeFHf0kkmsmBR7E81OLD856pKuIsHmsNzGIkufMHVR6fsWF4GFEq133cQIqx6f7e/exec";
+        try {
+            await fetch(scriptUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ toEmail: email, resetLink: resetLink, userName: userName }) });
+            return true;
+        } catch(e) { console.error(e); return false; }
+    }
+    function requestResetPassword() {
+        const email = prompt("Nhập email đã đăng ký:");
+        if (!email) return;
+        const user = db.users.find(u => u.email === email);
+        if (!user) { showToast("Email không tồn tại!", "error"); return; }
+        const token = Math.random().toString(36).substring(2,15)+Math.random().toString(36).substring(2,15);
+        db.resetTokens.push({ token, userId: user.id, expires: Date.now() + 24*60*60*1000 });
+        saveDb();
+        const resetLink = `${window.location.origin}${window.location.pathname}?reset_token=${token}`;
+        sendResetLink(email, resetLink, user.fullName || user.username);
+        showToast("Link reset đã gửi đến email (kiểm tra spam)", "success");
+    }
+    function showResetPasswordModal(token) {
+        const modalHtml = `<div id="resetModal" class="modal"><div class="modal-content"><h3 class="text-xl font-bold mb-4 text-green-400">Đặt lại mật khẩu</h3><div class="mb-3"><input type="password" id="newPassword" placeholder="Mật khẩu mới" class="w-full bg-gray-800 px-3 py-2 rounded-lg"></div><div class="mb-3"><input type="password" id="confirmPassword" placeholder="Xác nhận" class="w-full bg-gray-800 px-3 py-2 rounded-lg"></div><div class="flex gap-3"><button id="doResetBtn" class="flex-1 btn-primary py-2 rounded-lg">Đặt lại</button><button id="cancelResetBtn" class="flex-1 bg-gray-700 py-2 rounded-lg">Hủy</button></div></div></div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        document.getElementById('doResetBtn').onclick = () => {
+            const newPass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            if (!newPass || newPass.length<6) { showToast("Mật khẩu tối thiểu 6 ký tự","error"); return; }
+            if (newPass !== confirm) { showToast("Xác nhận không khớp","error"); return; }
+            const entry = db.resetTokens.find(t => t.token === token && t.expires > Date.now());
+            if (!entry) { showToast("Token hết hạn","error"); document.getElementById('resetModal').remove(); return; }
+            const user = db.users.find(u => u.id === entry.userId);
+            if (user) { user.password = newPass; db.resetTokens = db.resetTokens.filter(t => t.token !== token); saveDb(); showToast("Đổi mật khẩu thành công","success"); document.getElementById('resetModal').remove(); if(currentUser && currentUser.id===user.id) setCurrentUser(null); else showAuthModal(); }
+        };
+        document.getElementById('cancelResetBtn').onclick = () => document.getElementById('resetModal').remove();
+    }
+
+    // ==================== PROFILE ====================
+    function renderProfilePage() {
+        if (!currentUser) { document.getElementById('pageContent').innerHTML = `<div class="text-center py-10">Vui lòng đăng nhập.</div>`; return; }
+        const html = `<div class="glass-card rounded-xl p-6 max-w-2xl mx-auto"><h2 class="text-2xl font-bold mb-6 text-green-400">👤 Thông tin cá nhân</h2><div class="space-y-4"><div><label class="block text-gray-300">Tên đăng nhập</label><input type="text" class="w-full bg-gray-800 px-3 py-2 rounded-lg" value="${currentUser.username}" disabled></div><div><label class="block text-gray-300">Họ tên</label><input type="text" id="profileFullName" class="w-full bg-gray-800 px-3 py-2 rounded-lg" value="${escapeHtml(currentUser.fullName||'')}"></div><div><label class="block text-gray-300">Email</label><input type="email" id="profileEmail" class="w-full bg-gray-800 px-3 py-2 rounded-lg" value="${escapeHtml(currentUser.email)}"></div><div><label class="block text-gray-300">Số điện thoại</label><input type="tel" id="profilePhone" class="w-full bg-gray-800 px-3 py-2 rounded-lg" value="${escapeHtml(currentUser.phone||'')}"></div><div><label class="block text-gray-300">Địa chỉ</label><textarea id="profileAddress" class="w-full bg-gray-800 px-3 py-2 rounded-lg" rows="2">${escapeHtml(currentUser.address||'')}</textarea></div><div><label class="block text-gray-300">Số dư</label><input type="text" class="w-full bg-gray-800 px-3 py-2 rounded-lg text-green-400 font-bold" value="${currentUser.balance.toLocaleString()}đ" disabled></div><div><label class="block text-gray-300">Ngày đăng ký</label><input type="text" class="w-full bg-gray-800 px-3 py-2 rounded-lg" value="${new Date(currentUser.createdAt).toLocaleString()}" disabled></div><div class="flex gap-3 mt-6"><button id="saveProfileBtn" class="flex-1 btn-primary py-2 rounded-lg"><i class="fas fa-save mr-2"></i>Lưu</button><button id="changePasswordBtn" class="flex-1 bg-gray-700 py-2 rounded-lg"><i class="fas fa-key mr-2"></i>Đổi mật khẩu</button></div></div></div>`;
+        document.getElementById('pageContent').innerHTML = html;
+        document.getElementById('saveProfileBtn').onclick = () => {
+            const newFullName = document.getElementById('profileFullName').value.trim();
+            const newEmail = document.getElementById('profileEmail').value.trim();
+            const newPhone = document.getElementById('profilePhone').value.trim();
+            const newAddress = document.getElementById('profileAddress').value.trim();
+            if (!newFullName || !newEmail) { showToast("Họ tên và email không được trống","error"); return; }
+            if (db.users.some(u => u.email === newEmail && u.id !== currentUser.id)) { showToast("Email đã tồn tại","error"); return; }
+            currentUser.fullName = newFullName; currentUser.email = newEmail; currentUser.phone = newPhone; currentUser.address = newAddress;
+            saveDb(); updateUIForUser(); showToast("Cập nhật thành công","success"); renderProfilePage();
+        };
+        document.getElementById('changePasswordBtn').onclick = () => { const newPass = prompt("Mật khẩu mới (ít nhất 6 ký tự):"); if(newPass && newPass.length>=6) { currentUser.password = newPass; saveDb(); showToast("Đã đổi mật khẩu","success"); } else showToast("Mật khẩu phải >=6 ký tự","error"); };
+    }
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m) { if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m; }); }
+
+    // ==================== AFFILIATE ====================
+    function renderAffiliatePage() {
+        if (!currentUser) { document.getElementById('pageContent').innerHTML = `<div class="text-center py-10">Vui lòng đăng nhập.</div>`; return; }
+        const refLink = `${window.location.origin}${window.location.pathname}?ref=${currentUser.referralCode}`;
+        const html = `<div class="glass-card rounded-xl p-6 max-w-3xl mx-auto"><h2 class="text-2xl font-bold mb-6 text-green-400">🔗 Tiếp thị liên kết</h2><div class="mb-6"><label class="block text-gray-300 mb-1">Link giới thiệu</label><div class="flex gap-2"><input type="text" id="refLink" class="flex-1 bg-gray-800 px-3 py-2 rounded-lg" value="${refLink}" readonly><button onclick="copyRefLink()" class="btn-primary px-4 py-2 rounded-lg"><i class="fas fa-copy"></i> Sao chép</button></div></div><div class="grid grid-cols-2 gap-4 mb-6"><div class="glass-card p-4 text-center"><div class="text-2xl font-bold text-green-400">${currentUser.referrals ? currentUser.referrals.length : 0}</div><div>Số người giới thiệu</div></div><div class="glass-card p-4 text-center"><div class="text-2xl font-bold text-green-400">${(currentUser.commissionEarned || 0).toLocaleString()}đ</div><div>Hoa hồng đã nhận</div></div></div><div class="glass-card p-4"><h3 class="font-bold mb-2 text-green-300">Hướng dẫn</h3><p class="text-sm text-gray-300">Chia sẻ link, khi người dùng đăng ký và mua hàng, bạn nhận ${db.affiliateSettings.commissionPercent}% hoa hồng.</p></div></div>`;
+        document.getElementById('pageContent').innerHTML = html;
+    }
+    function copyRefLink() { const input = document.getElementById('refLink'); input.select(); document.execCommand('copy'); showToast("Đã sao chép link", "success"); }
+
+    // ==================== MUA HÀNG ====================
+    function showKeysModal(keys, title) {
+        const keyListHtml = Array.isArray(keys) ? keys.map(k => `<div class="key-list mb-2">🔑 ${k}</div>`).join('') : `<div class="key-list">🔑 ${keys}</div>`;
+        const modalHtml = `<div id="keysModal" class="modal"><div class="modal-content"><h3 class="text-xl font-bold mb-3 text-green-400">✅ Mua thành công!</h3><p class="mb-2">${title}</p><p class="mb-2">Key của bạn:</p>${keyListHtml}<button onclick="document.getElementById('keysModal').remove()" class="mt-4 w-full btn-primary py-2 rounded-lg">Đóng</button></div></div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+    function validateCoupon(code, amount) {
+        const coupon = db.coupons.find(c => c.code.toUpperCase() === code.toUpperCase());
+        if (!coupon) return { valid: false, message: "Mã không tồn tại" };
+        if (coupon.maxUses && coupon.usedCount >= coupon.maxUses) return { valid: false, message: "Mã đã hết lượt" };
+        if (coupon.expiresAt && new Date(coupon.expiresAt) < new Date()) return { valid: false, message: "Mã đã hết hạn" };
+        let discount = 0;
+        if (coupon.type === 'percent') discount = amount * coupon.value / 100;
+        else discount = Math.min(coupon.value, amount);
+        return { valid: true, discount: Math.floor(discount), coupon: coupon };
+    }
+    async function buySingle(packageId, quantity, discount=0, usedCoupon=null, finalTotal=null) {
+        const pkg = db.packages.find(p => p.id === packageId);
+        if (!pkg) return false;
+        const total = finalTotal !== null ? finalTotal : pkg.price * quantity - discount;
+        if ((currentUser.balance || 0) < total) { showToast(`Số dư không đủ. Cần ${total.toLocaleString()}đ`, "error"); return false; }
+        const available = db.keys.filter(k => k.packageId === packageId && !k.used);
+        if (available.length < quantity) { showToast("Hết key, liên hệ admin", "error"); return false; }
+        currentUser.balance -= total;
+        const orderId = Date.now();
+        const now = Date.now();
+        const purchasedKeys = [];
+        const usedKeys = available.slice(0, quantity);
+        for (let i=0; i<quantity; i++) {
+            const key = usedKeys[i];
+            key.used = true;
+            key.orderId = orderId;
+            key.activatedAt = now;
+            key.expiresAt = now + pkg.days * 86400000;
+            key.autoRenew = false;
+            purchasedKeys.push(key.code);
+        }
+        if (usedCoupon) usedCoupon.usedCount++;
+        let referralBy = null;
+        if (currentUser.referredBy) {
+            const referrer = db.users.find(u => u.id === currentUser.referredBy);
+            if (referrer) {
+                const commission = Math.floor(total * db.affiliateSettings.commissionPercent / 100);
+                referrer.balance += commission;
+                referrer.commissionEarned = (referrer.commissionEarned || 0) + commission;
+                referralBy = referrer.id;
+            }
+        }
+        db.orders.unshift({ id: orderId, userId: currentUser.id, items: [{ type: 'single', packageId, packageName: pkg.name, quantity, price: pkg.price, discount, finalPrice: total }], total, status: 'completed', createdAt: new Date().toISOString(), keyDelivered: true, keys: purchasedKeys, couponCode: usedCoupon ? usedCoupon.code : null, referralBy });
+        saveDb(); updateUIForUser();
+        showToast(`Mua thành công ${quantity} ${pkg.name}!`, "success");
+        showKeysModal(purchasedKeys, pkg.name);
+        if (currentPage === 'history') renderHistoryPage();
+        if (currentPage === 'home') renderHomePage();
+        if (currentUser.role === 'admin') renderAdminPage();
+        return true;
+    }
+    async function buyBundle(bundleId, quantity, discount=0, usedCoupon=null, finalTotal=null) {
+        const bundle = db.bundles.find(b => b.id === bundleId);
+        if (!bundle) return false;
+        const total = finalTotal !== null ? finalTotal : bundle.price * quantity - discount;
+        if ((currentUser.balance || 0) < total) { showToast(`Số dư không đủ. Cần ${total.toLocaleString()}đ`, "error"); return false; }
+        let required = [];
+        for (let item of bundle.items) {
+            const pkg = db.packages.find(p => p.id === item.packageId);
+            if (!pkg) { showToast(`Lỗi gói ${item.packageId}`, "error"); return false; }
+            const available = db.keys.filter(k => k.packageId === item.packageId && !k.used).length;
+            if (available < item.quantity * quantity) { showToast(`Không đủ key cho ${pkg.name}`, "error"); return false; }
+            required.push({ packageId: item.packageId, pkgName: pkg.name, need: item.quantity * quantity, days: pkg.days });
+        }
+        currentUser.balance -= total;
+        const orderId = Date.now();
+        const now = Date.now();
+        const allKeys = [];
+        for (let req of required) {
+            const keys = db.keys.filter(k => k.packageId === req.packageId && !k.used).slice(0, req.need);
+            for (let key of keys) {
+                key.used = true;
+                key.orderId = orderId;
+                key.activatedAt = now;
+                key.expiresAt = now + req.days * 86400000;
+                key.autoRenew = false;
+                allKeys.push({ packageName: req.pkgName, code: key.code, expiresAt: key.expiresAt });
+            }
+        }
+        if (usedCoupon) usedCoupon.usedCount++;
+        let referralBy = null;
+        if (currentUser.referredBy) {
+            const referrer = db.users.find(u => u.id === currentUser.referredBy);
+            if (referrer) {
+                const commission = Math.floor(total * db.affiliateSettings.commissionPercent / 100);
+                referrer.balance += commission;
+                referrer.commissionEarned = (referrer.commissionEarned || 0) + commission;
+                referralBy = referrer.id;
+            }
+        }
+        db.orders.unshift({ id: orderId, userId: currentUser.id, items: [{ type: 'bundle', bundleId, bundleName: bundle.name, quantity, price: bundle.price, discount, finalPrice: total, items: bundle.items }], total, status: 'completed', createdAt: new Date().toISOString(), keyDelivered: true, keys: allKeys.map(k => `${k.packageName}: ${k.code} (hết hạn ${new Date(k.expiresAt).toLocaleDateString()})`), couponCode: usedCoupon ? usedCoupon.code : null, referralBy });
+        saveDb(); updateUIForUser();
+        showToast(`Mua thành công ${quantity} ${bundle.name}!`, "success");
+        showKeysModal(allKeys.map(k => `${k.packageName}: ${k.code} (hết hạn ${new Date(k.expiresAt).toLocaleDateString()})`).join('\n'), bundle.name);
+        if (currentPage === 'history') renderHistoryPage();
+        if (currentPage === 'home') renderHomePage();
+        if (currentUser.role === 'admin') renderAdminPage();
+        return true;
+    }
+    function buyWithConfirm(packageId, defaultQty=1) {
+        if (!currentUser) { showToast("Vui lòng đăng nhập", "error"); return; }
+        const pkg = db.packages.find(p => p.id === packageId);
+        if (!pkg) return;
+        const modalId = 'buyModal';
+        let modalHtml = `<div id="${modalId}" class="modal"><div class="modal-content"><h3 class="text-xl font-bold mb-4 text-green-400">Xác nhận mua</h3><div class="mb-3"><label class="block text-gray-300">Số lượng</label><input type="number" id="qty" min="1" max="10" value="${defaultQty}" class="w-full bg-gray-800 px-3 py-2 rounded-lg"></div><div class="mb-3"><label class="block text-gray-300">Mã giảm giá</label><input type="text" id="couponCode" class="w-full bg-gray-800 px-3 py-2 rounded-lg"></div><div class="mb-4 text-sm"><div>💰 Giá gốc: <span id="originalTotal" class="text-white">${(pkg.price*defaultQty).toLocaleString()}đ</span></div><div>💸 Giảm: <span id="discountSpan" class="text-green-400">0đ</span></div><div class="text-green-400 font-bold">💵 Thành tiền: <span id="finalTotalSpan">${(pkg.price*defaultQty).toLocaleString()}đ</span></div></div><div class="flex gap-3"><button id="confirmBtn" class="flex-1 btn-primary py-2 rounded-lg">Thanh toán</button><button id="cancelBtn" class="flex-1 bg-gray-700 py-2 rounded-lg">Hủy</button></div></div></div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        const qtyInput = document.getElementById('qty'), couponInput = document.getElementById('couponCode');
+        const update = () => {
+            let qty = parseInt(qtyInput.value) || 1; if (qty<1) qty=1;
+            let total = pkg.price * qty;
+            let discount = 0, used = null;
+            const code = couponInput.value.trim().toUpperCase();
+            if (code) { const v = validateCoupon(code, total); if (v.valid) { discount = v.discount; used = v.coupon; } }
+            document.getElementById('originalTotal').innerText = total.toLocaleString()+'đ';
+            document.getElementById('discountSpan').innerText = discount.toLocaleString()+'đ';
+            document.getElementById('finalTotalSpan').innerText = (total-discount).toLocaleString()+'đ';
+            window._tempCoupon = used;
+        };
+        qtyInput.addEventListener('input', update); couponInput.addEventListener('input', update);
+        document.getElementById('confirmBtn').onclick = async () => {
+            let qty = parseInt(qtyInput.value) || 1; if (qty<1) qty=1;
+            let total = pkg.price * qty;
+            let discount = 0, used = null;
+            const code = couponInput.value.trim().toUpperCase();
+            if (code) { const v = validateCoupon(code, total); if (v.valid) { discount = v.discount; used = v.coupon; } else { showToast(v.message, "error"); return; } }
+            const finalTotal = total - discount;
+            if ((currentUser.balance || 0) < finalTotal) { showToast(`Số dư không đủ`, "error"); return; }
+            const available = db.keys.filter(k => k.packageId === packageId && !k.used);
+            if (available.length < qty) { showToast("Hết key", "error"); return; }
+            currentUser.balance -= finalTotal;
+            const orderId = Date.now();
+            const now = Date.now();
+            const purchasedKeys = [];
+            const usedKeys = available.slice(0, qty);
+            for (let i=0; i<qty; i++) {
+                usedKeys[i].used = true;
+                usedKeys[i].orderId = orderId;
+                usedKeys[i].activatedAt = now;
+                usedKeys[i].expiresAt = now + pkg.days * 86400000;
+                usedKeys[i].autoRenew = false;
+                purchasedKeys.push(usedKeys[i].code);
+            }
+            if (used) used.usedCount++;
+            let referralBy = null;
+            if (currentUser.referredBy) { const ref = db.users.find(u => u.id === currentUser.referredBy); if(ref){ const comm = Math.floor(finalTotal * db.affiliateSettings.commissionPercent/100); ref.balance += comm; ref.commissionEarned = (ref.commissionEarned||0)+comm; referralBy = ref.id; } }
+            db.orders.unshift({ id: orderId, userId: currentUser.id, items: [{ type: 'single', packageId, packageName: pkg.name, quantity: qty, price: pkg.price, discount, finalPrice: finalTotal }], total: finalTotal, status: 'completed', createdAt: new Date().toISOString(), keyDelivered: true, keys: purchasedKeys, couponCode: used ? used.code : null, referralBy });
+            saveDb(); updateUIForUser();
+            showToast(`Mua thành công ${qty} ${pkg.name}!`, "success");
+            showKeysModal(purchasedKeys, pkg.name);
+            document.getElementById(modalId).remove();
+            if (currentPage === 'history') renderHistoryPage();
+            if (currentPage === 'home') renderHomePage();
+            if (currentUser.role === 'admin') renderAdminPage();
+        };
+        document.getElementById('cancelBtn').onclick = () => document.getElementById(modalId).remove();
+    }
+    function buyBundleConfirm(bundleId, defaultQty=1) {
+        if (!currentUser) { showToast("Vui lòng đăng nhập", "error"); return; }
+        const bundle = db.bundles.find(b => b.id === bundleId);
+        if (!bundle) return;
+        const modalId = 'buyBundleModal';
+        let modalHtml = `<div id="${modalId}" class="modal"><div class="modal-content"><h3 class="text-xl font-bold mb-4 text-green-400">Xác nhận mua combo</h3><div class="mb-3"><label class="block text-gray-300">Số lượng</label><input type="number" id="qty" min="1" max="5" value="${defaultQty}" class="w-full bg-gray-800 px-3 py-2 rounded-lg"></div><div class="mb-3"><label class="block text-gray-300">Mã giảm giá</label><input type="text" id="couponCode" class="w-full bg-gray-800 px-3 py-2 rounded-lg"></div><div class="mb-4 text-sm"><div>💰 Giá gốc: <span id="originalTotal" class="text-white">${(bundle.price*defaultQty).toLocaleString()}đ</span></div><div>💸 Giảm: <span id="discountSpan" class="text-green-400">0đ</span></div><div class="text-green-400 font-bold">💵 Thành tiền: <span id="finalTotalSpan">${(bundle.price*defaultQty).toLocaleString()}đ</span></div></div><div class="flex gap-3"><button id="confirmBtn" class="flex-1 btn-primary py-2 rounded-lg">Thanh toán</button><button id="cancelBtn" class="flex-1 bg-gray-700 py-2 rounded-lg">Hủy</button></div></div></div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        const qtyInput = document.getElementById('qty'), couponInput = document.getElementById('couponCode');
+        const update = () => {
+            let qty = parseInt(qtyInput.value) || 1; if (qty<1) qty=1;
+            let total = bundle.price * qty;
+            let discount = 0, used = null;
+            const code = couponInput.value.trim().toUpperCase();
+            if (code) { const v = validateCoupon(code, total); if (v.valid) { discount = v.discount; used = v.coupon; } }
+            document.getElementById('originalTotal').innerText = total.toLocaleString()+'đ';
+            document.getElementById('discountSpan').innerText = discount.toLocaleString()+'đ';
+            document.getElementById('finalTotalSpan').innerText = (total-discount).toLocaleString()+'đ';
+            window._tempCoupon = used;
+        };
+        qtyInput.addEventListener('input', update); couponInput.addEventListener('input', update);
+        document.getElementById('confirmBtn').onclick = async () => {
+            let qty = parseInt(qtyInput.value) || 1; if (qty<1) qty=1;
+            let total = bundle.price * qty;
+            let discount = 0, used = null;
+            const code = couponInput.value.trim().toUpperCase();
+            if (code) { const v = validateCoupon(code, total); if (v.valid) { discount = v.discount; used = v.coupon; } else { showToast(v.message, "error"); return; } }
+            const finalTotal = total - discount;
+            if ((currentUser.balance || 0) < finalTotal) { showToast(`Số dư không đủ`, "error"); return; }
+            let required = [];
+            for (let item of bundle.items) {
+                const pkg = db.packages.find(p => p.id === item.packageId);
+                if (!pkg) { showToast(`Lỗi gói`, "error"); return; }
+                const available = db.keys.filter(k => k.packageId === item.packageId && !k.used).length;
+                if (available < item.quantity * qty) { showToast(`Không đủ key cho ${pkg.name}`, "error"); return; }
+                required.push({ packageId: item.packageId, pkgName: pkg.name, need: item.quantity * qty, days: pkg.days });
+            }
+            currentUser.balance -= finalTotal;
+            const orderId = Date.now();
+            const now = Date.now();
+            const allKeys = [];
+            for (let req of required) {
+                const keys = db.keys.filter(k => k.packageId === req.packageId && !k.used).slice(0, req.need);
+                for (let key of keys) {
+                    key.used = true;
+                    key.orderId = orderId;
+                    key.activatedAt = now;
+                    key.expiresAt = now + req.days * 86400000;
+                    key.autoRenew = false;
+                    allKeys.push({ packageName: req.pkgName, code: key.code, expiresAt: key.expiresAt });
+                }
+            }
+            if (used) used.usedCount++;
+            let referralBy = null;
+            if (currentUser.referredBy) { const ref = db.users.find(u => u.id === currentUser.referredBy); if(ref){ const comm = Math.floor(finalTotal * db.affiliateSettings.commissionPercent/100); ref.balance += comm; ref.commissionEarned = (ref.commissionEarned||0)+comm; referralBy = ref.id; } }
+            db.orders.unshift({ id: orderId, userId: currentUser.id, items: [{ type: 'bundle', bundleId, bundleName: bundle.name, quantity: qty, price: bundle.price, discount, finalPrice: finalTotal, items: bundle.items }], total: finalTotal, status: 'completed', createdAt: new Date().toISOString(), keyDelivered: true, keys: allKeys.map(k => `${k.packageName}: ${k.code} (hết hạn ${new Date(k.expiresAt).toLocaleDateString()})`), couponCode: used ? used.code : null, referralBy });
+            saveDb(); updateUIForUser();
+            showToast(`Mua thành công ${qty} ${bundle.name}!`, "success");
+            showKeysModal(allKeys.map(k => `${k.packageName}: ${k.code} (hết hạn ${new Date(k.expiresAt).toLocaleDateString()})`).join('\n'), bundle.name);
+            document.getElementById(modalId).remove();
+            if (currentPage === 'history') renderHistoryPage();
+            if (currentPage === 'home') renderHomePage();
+            if (currentUser.role === 'admin') renderAdminPage();
+        };
+        document.getElementById('cancelBtn').onclick = () => document.getElementById(modalId).remove();
+    }
+
+    // ==================== HỆ THỐNG VÉ HỖ TRỢ (TICKET) ====================
+    function renderSupportPage() {
+        if (!currentUser) { document.getElementById('pageContent').innerHTML = `<div class="text-center py-10">Vui lòng đăng nhập.</div>`; return; }
+        const userTickets = db.tickets.filter(t => t.userId === currentUser.id).sort((a,b) => b.id - a.id);
+        const html = `
+            <div class="glass-card rounded-xl p-6 max-w-4xl mx-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-green-400">🎫 Vé hỗ trợ của tôi</h2>
+                    <button onclick="showNewTicketModal()" class="btn-primary px-4 py-2 rounded-lg"><i class="fas fa-plus mr-2"></i>Tạo vé mới</button>
+                </div>
+                ${userTickets.length === 0 ? '<p class="text-gray-400">Bạn chưa có vé hỗ trợ nào. Hãy tạo vé mới nếu cần giúp đỡ.</p>' : ''}
+                <div class="space-y-4">
+                    ${userTickets.map(ticket => {
+                        const lastMessage = ticket.messages[ticket.messages.length-1];
+                        return `<div class="glass-card p-4 flex justify-between items-center cursor-pointer hover:border-green-500" onclick="viewTicket(${ticket.id})">
+                            <div><div class="font-bold">${escapeHtml(ticket.subject)}</div><div class="text-sm text-gray-400">${new Date(ticket.createdAt).toLocaleString()}</div><div class="text-xs">Trạng thái: <span class="${ticket.status === 'open' ? 'text-green-400' : 'text-red-400'}">${ticket.status === 'open' ? 'Đang mở' : 'Đã đóng'}</span></div></div>
+                            <div class="text-right"><i class="fas fa-chevron-right text-green-400"></i></div>
+                        </div>`;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+        document.getElementById('pageContent').innerHTML = html;
+    }
+    function showNewTicketModal() {
+        const modalHtml = `
+            <div id="newTicketModal" class="modal">
+                <div class="modal-content">
+                    <h3 class="text-xl font-bold mb-4 text-green-400">Tạo vé hỗ trợ mới</h3>
+                    <div class="mb-3"><label class="block text-gray-300 mb-1">Chủ đề</label><input type="text" id="ticketSubject" class="w-full bg-gray-800 px-3 py-2 rounded-lg" placeholder="Nhập chủ đề..."></div>
+                    <div class="mb-3"><label class="block text-gray-300 mb-1">Nội dung</label><textarea id="ticketContent" rows="4" class="w-full bg-gray-800 px-3 py-2 rounded-lg" placeholder="Mô tả vấn đề của bạn..."></textarea></div>
+                    <div class="flex gap-3"><button id="submitTicketBtn" class="flex-1 btn-primary py-2 rounded-lg">Gửi</button><button onclick="document.getElementById('newTicketModal').remove()" class="flex-1 bg-gray-700 py-2 rounded-lg">Hủy</button></div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        document.getElementById('submitTicketBtn').onclick = () => {
+            const subject = document.getElementById('ticketSubject').value.trim();
+            const content = document.getElementById('ticketContent').value.trim();
+            if (!subject || !content) { showToast("Vui lòng nhập đầy đủ chủ đề và nội dung", "error"); return; }
+            const newTicket = {
+                id: Date.now(),
+                userId: currentUser.id,
+                subject: subject,
+                messages: [{ sender: currentUser.id, content: content, timestamp: Date.now() }],
+                status: 'open',
+                createdAt: new Date().toISOString()
+            };
+            db.tickets.push(newTicket);
+            saveDb();
+            document.getElementById('newTicketModal').remove();
+            renderSupportPage();
+            showToast("Vé hỗ trợ đã được gửi!", "success");
+        };
+    }
+    function viewTicket(ticketId) {
+        const ticket = db.tickets.find(t => t.id === ticketId);
+        if (!ticket) return;
+        const isAdmin = currentUser.role === 'admin';
+        const canReply = ticket.status === 'open';
+        const user = db.users.find(u => u.id === ticket.userId);
+        const userName = user ? user.username : 'Người dùng';
+        const html = `
+            <div class="glass-card rounded-xl p-6 max-w-3xl mx-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-green-400">🎫 ${escapeHtml(ticket.subject)}</h2>
+                    <button onclick="renderSupportPage()" class="text-gray-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                <div class="mb-4 text-sm text-gray-400">Người gửi: ${userName} | Trạng thái: <span class="${ticket.status === 'open' ? 'text-green-400' : 'text-red-400'}">${ticket.status === 'open' ? 'Đang mở' : 'Đã đóng'}</span> | ${new Date(ticket.createdAt).toLocaleString()}</div>
+                <div class="space-y-3 mb-4 max-h-96 overflow-y-auto">
+                    ${ticket.messages.map(msg => {
+                        const isAdminMsg = msg.sender === 'admin';
+                        const senderName = isAdminMsg ? 'Admin' : (db.users.find(u => u.id === msg.sender)?.username || 'User');
+                        return `<div class="ticket-message ${isAdminMsg ? 'admin' : 'user'}">
+                            <div class="flex justify-between text-xs text-gray-400 mb-1"><span>${senderName}</span><span>${new Date(msg.timestamp).toLocaleString()}</span></div>
+                            <div class="text-gray-200">${escapeHtml(msg.content)}</div>
+                        </div>`;
+                    }).join('')}
+                </div>
+                ${canReply ? `
+                    <div class="mt-4"><textarea id="replyContent" rows="3" class="w-full bg-gray-800 px-3 py-2 rounded-lg" placeholder="Nhập phản hồi..."></textarea></div>
+                    <div class="flex gap-3 mt-3">
+                        <button onclick="replyTicket(${ticket.id})" class="flex-1 btn-primary py-2 rounded-lg"><i class="fas fa-reply mr-2"></i>Gửi phản hồi</button>
+                        ${isAdmin ? `<button onclick="closeTicket(${ticket.id})" class="flex-1 bg-red-600 hover:bg-red-700 py-2 rounded-lg"><i class="fas fa-lock mr-2"></i>Đóng vé</button>` : ''}
+                    </div>
+                ` : '<p class="text-yellow-400 mt-4">Vé này đã đóng, bạn không thể trả lời thêm.</p>'}
+                <div class="mt-4"><button onclick="renderSupportPage()" class="btn-outline px-4 py-2 rounded-lg">Quay lại</button></div>
+            </div>
+        `;
+        document.getElementById('pageContent').innerHTML = html;
+    }
+    function replyTicket(ticketId) {
+        const ticket = db.tickets.find(t => t.id === ticketId);
+        if (!ticket || ticket.status !== 'open') { showToast("Vé đã đóng, không thể trả lời", "error"); return; }
+        const content = document.getElementById('replyContent')?.value.trim();
+        if (!content) { showToast("Vui lòng nhập nội dung phản hồi", "error"); return; }
+        const sender = currentUser.role === 'admin' ? 'admin' : currentUser.id;
+        ticket.messages.push({ sender: sender, content: content, timestamp: Date.now() });
+        saveDb();
+        viewTicket(ticketId);
+        showToast("Đã gửi phản hồi", "success");
+    }
+    function closeTicket(ticketId) {
+        const ticket = db.tickets.find(t => t.id === ticketId);
+        if (!ticket) return;
+        if (currentUser.role !== 'admin') { showToast("Chỉ admin mới có thể đóng vé", "error"); return; }
+        ticket.status = 'closed';
+        saveDb();
+        viewTicket(ticketId);
+        showToast("Vé đã được đóng", "success");
+    }
+
+    // ==================== ADMIN QUẢN LÝ TICKET ====================
+    function renderAdminTickets() {
+        if (!currentUser || currentUser.role !== 'admin') return;
+        const allTickets = [...db.tickets].sort((a,b) => b.id - a.id);
+        const html = `
+            <div class="glass-card rounded-xl p-6">
+                <h3 class="text-xl font-bold mb-4 text-green-400">📋 Danh sách vé hỗ trợ</h3>
+                ${allTickets.length === 0 ? '<p>Chưa có vé nào.</p>' : ''}
+                <div class="space-y-3">
+                    ${allTickets.map(ticket => {
+                        const user = db.users.find(u => u.id === ticket.userId);
+                        return `<div class="glass-card p-3 flex justify-between items-center cursor-pointer hover:border-green-500" onclick="viewAdminTicket(${ticket.id})">
+                            <div><div class="font-bold">${escapeHtml(ticket.subject)}</div><div class="text-sm text-gray-400">${user?.username} - ${new Date(ticket.createdAt).toLocaleString()}</div><div class="text-xs">Trạng thái: <span class="${ticket.status === 'open' ? 'text-green-400' : 'text-red-400'}">${ticket.status === 'open' ? 'Đang mở' : 'Đã đóng'}</span></div></div>
+                            <div><i class="fas fa-chevron-right text-green-400"></i></div>
+                        </div>`;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+        document.getElementById('adminTabContent').innerHTML = html;
+    }
+    function viewAdminTicket(ticketId) {
+        const ticket = db.tickets.find(t => t.id === ticketId);
+        if (!ticket) return;
+        const user = db.users.find(u => u.id === ticket.userId);
+        const userName = user ? user.username : 'Người dùng';
+        const html = `
+            <div class="glass-card rounded-xl p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-green-400">🎫 ${escapeHtml(ticket.subject)}</h3>
+                    <button onclick="renderAdminTickets()" class="text-gray-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                <div class="mb-4 text-sm text-gray-400">Người gửi: ${userName} | Trạng thái: <span class="${ticket.status === 'open' ? 'text-green-400' : 'text-red-400'}">${ticket.status === 'open' ? 'Đang mở' : 'Đã đóng'}</span> | ${new Date(ticket.createdAt).toLocaleString()}</div>
+                <div class="space-y-3 mb-4 max-h-96 overflow-y-auto">
+                    ${ticket.messages.map(msg => {
+                        const isAdminMsg = msg.sender === 'admin';
+                        const senderName = isAdminMsg ? 'Admin' : (db.users.find(u => u.id === msg.sender)?.username || 'User');
+                        return `<div class="ticket-message ${isAdminMsg ? 'admin' : 'user'}">
+                            <div class="flex justify-between text-xs text-gray-400 mb-1"><span>${senderName}</span><span>${new Date(msg.timestamp).toLocaleString()}</span></div>
+                            <div class="text-gray-200">${escapeHtml(msg.content)}</div>
+                        </div>`;
+                    }).join('')}
+                </div>
+                ${ticket.status === 'open' ? `
+                    <div class="mt-4"><textarea id="adminReplyContent" rows="3" class="w-full bg-gray-800 px-3 py-2 rounded-lg" placeholder="Nhập phản hồi..."></textarea></div>
+                    <div class="flex gap-3 mt-3">
+                        <button onclick="adminReplyTicket(${ticket.id})" class="flex-1 btn-primary py-2 rounded-lg"><i class="fas fa-reply mr-2"></i>Trả lời</button>
+                        <button onclick="adminCloseTicket(${ticket.id})" class="flex-1 bg-red-600 hover:bg-red-700 py-2 rounded-lg"><i class="fas fa-lock mr-2"></i>Đóng vé</button>
+                    </div>
+                ` : '<p class="text-yellow-400 mt-4">Vé đã đóng.</p>'}
+                <div class="mt-4"><button onclick="renderAdminTickets()" class="btn-outline px-4 py-2 rounded-lg">Quay lại</button></div>
+            </div>
+        `;
+        document.getElementById('adminTabContent').innerHTML = html;
+    }
+    function adminReplyTicket(ticketId) {
+        const ticket = db.tickets.find(t => t.id === ticketId);
+        if (!ticket || ticket.status !== 'open') { showToast("Vé đã đóng", "error"); return; }
+        const content = document.getElementById('adminReplyContent')?.value.trim();
+        if (!content) { showToast("Vui lòng nhập nội dung", "error"); return; }
+        ticket.messages.push({ sender: 'admin', content: content, timestamp: Date.now() });
+        saveDb();
+        viewAdminTicket(ticketId);
+        showToast("Đã gửi phản hồi", "success");
+    }
+    function adminCloseTicket(ticketId) {
+        const ticket = db.tickets.find(t => t.id === ticketId);
+        if (!ticket) return;
+        ticket.status = 'closed';
+        saveDb();
+        viewAdminTicket(ticketId);
+        showToast("Vé đã được đóng", "success");
+    }
+
+    // ==================== RENDER TRANG CHỦ ====================
+    function renderHomePage() {
+        const announcementsHtml = db.announcements.length ? `<div class="glass-card rounded-xl p-4 mb-6 border-l-4 border-green-500"><div class="flex items-center gap-2"><i class="fas fa-bullhorn text-green-400"></i><h3 class="font-bold">Thông báo chính</h3></div><div class="space-y-2 text-sm">${db.announcements.map(a => `<div class="border-b border-gray-700 pb-2"><p>${a.content}</p><p class="text-gray-500 text-xs">${new Date(a.createdAt).toLocaleString()}</p></div>`).join('')}</div></div>` : '';
+        const subHtml = db.subAnnouncements.length ? `<div class="glass-card rounded-xl p-4 mb-6 border-l-4 border-yellow-500"><div class="flex items-center gap-2"><i class="fas fa-info-circle text-yellow-400"></i><h3 class="font-bold">Thông báo phụ</h3></div><div class="space-y-2 text-sm">${db.subAnnouncements.map(a => `<div class="border-b border-gray-700 pb-2"><p>${a.content}</p><p class="text-gray-500 text-xs">${new Date(a.createdAt).toLocaleString()}</p></div>`).join('')}</div></div>` : '';
+        
+        const fbVersion = db.versions.filter(v => v.tool === 'fb').sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+        const olmVersion = db.versions.filter(v => v.tool === 'olm').sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+        
+        const introHtml = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+            <div class="glass-card rounded-xl p-6">
+                <div class="flex items-center justify-between mb-4"><div class="flex items-center gap-3"><i class="fab fa-facebook-f text-4xl text-green-400"></i><h3 class="text-2xl font-bold">Phantom Anchor PRO</h3></div>${fbVersion ? `<span class="bg-green-600/50 text-xs px-2 py-1 rounded-full">v${fbVersion.version}</span>` : ''}</div>
+                <p class="text-gray-300 mb-3">Tool báo cáo Facebook tự động, broadcast, blacklist, bảo trì toàn cầu.</p>
+                <ul class="list-disc list-inside text-sm text-gray-400 mb-4 space-y-1"><li>Báo cáo 15+ lý do</li><li>Broadcast hàng loạt</li><li>Checkpoint, clone, đổi mật khẩu</li></ul>
+                <div class="flex gap-3">${fbVersion ? `<a href="${fbVersion.downloadUrl}" target="_blank" class="flex-1 btn-primary px-4 py-2 rounded-lg text-center"><i class="fas fa-download mr-2"></i>Tải v${fbVersion.version}</a>` : `<a href="#" class="flex-1 btn-primary px-4 py-2 rounded-lg text-center" onclick="demoAlert(); return false;"><i class="fas fa-download mr-2"></i>Tải script</a>`}<button onclick="showToolGuide('fb')" class="flex-1 btn-outline px-4 py-2 rounded-lg"><i class="fas fa-question-circle mr-2"></i>Hướng dẫn</button></div>
+                ${fbVersion ? `<p class="text-xs text-gray-500 mt-2">📝 ${fbVersion.changelog}</p>` : ''}
+            </div>
+            <div class="glass-card rounded-xl p-6">
+                <div class="flex items-center justify-between mb-4"><div class="flex items-center gap-3"><i class="fas fa-graduation-cap text-4xl text-green-400"></i><h3 class="text-2xl font-bold">OLM Hacker Pro</h3></div>${olmVersion ? `<span class="bg-green-600/50 text-xs px-2 py-1 rounded-full">v${olmVersion.version}</span>` : ''}</div>
+                <p class="text-gray-300 mb-3">Tool hack OLM, bảng đáp án, làm bài nhanh, xuất Word.</p>
+                <ul class="list-disc list-inside text-sm text-gray-400 mb-4 space-y-1"><li>Bảng đáp án tất cả môn</li><li>Làm bài tự động</li><li>Chạy ngầm</li></ul>
+                <div class="flex gap-3">${olmVersion ? `<a href="${olmVersion.downloadUrl}" target="_blank" class="flex-1 btn-primary px-4 py-2 rounded-lg text-center"><i class="fas fa-download mr-2"></i>Tải v${olmVersion.version}</a>` : `<a href="#" class="flex-1 btn-primary px-4 py-2 rounded-lg text-center" onclick="demoAlert(); return false;"><i class="fas fa-download mr-2"></i>Tải script</a>`}<button onclick="showToolGuide('olm')" class="flex-1 btn-outline px-4 py-2 rounded-lg"><i class="fas fa-question-circle mr-2"></i>Hướng dẫn</button></div>
+                ${olmVersion ? `<p class="text-xs text-gray-500 mt-2">📝 ${olmVersion.changelog}</p>` : ''}
+            </div>
+        </div>
+        <div class="glass-card rounded-xl p-6 mb-8"><h3 class="text-xl font-bold mb-3 text-green-400">📌 Hướng dẫn sử dụng key & chạy script</h3><ol class="list-decimal list-inside text-gray-300 space-y-2 text-sm"><li>Chọn gói thuê và số lượng, nhập mã giảm giá (nếu có).</li><li>Thanh toán bằng số dư tài khoản (nạp tiền qua QR).</li><li>Sau khi mua, key sẽ hiện ngay lập tức. Copy key.</li><li><strong class="text-green-400">Cài đặt Tampermonkey</strong> (extension trên Chrome/Edge/Firefox).</li><li>Tải script từ link bên trên (hoặc copy nội dung script).</li><li>Vào Tampermonkey → Tạo script mới → Paste code → Lưu (Ctrl+S).</li><li>Bật script, nhập key khi được yêu cầu để kích hoạt.</li></ol><div class="mt-4 p-3 bg-gray-800/50 rounded-lg text-sm"><p class="text-yellow-300"><i class="fas fa-info-circle mr-2"></i> Lưu ý: Key có thời hạn theo gói, không hoàn tiền sau khi kích hoạt.</p></div></div>
+        <div class="flex justify-end mb-4"><button onclick="requestRecharge()" class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg"><i class="fas fa-plus-circle mr-2"></i> Nạp tiền</button></div>`;
+        
+        const bundlesHtml = db.bundles.length ? `<h2 class="text-2xl font-bold mb-4 mt-6 text-green-400">🎁 Gói kết hợp</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">${db.bundles.map(b => `<div class="glass-card rounded-xl p-6 text-center"><div class="text-3xl"><i class="fas fa-gift text-green-400"></i></div><h3 class="text-xl font-bold">${b.name}</h3><p class="text-gray-400 text-sm">${b.description}</p><div class="text-2xl font-bold text-green-400 my-3">${b.price.toLocaleString()}đ</div><div class="flex justify-center gap-2 mb-3"><label class="text-sm">SL:</label><input type="number" id="bundle-qty-${b.id}" min="1" max="5" value="1" class="w-20 bg-gray-700 text-center rounded-lg px-2 py-1"></div><button onclick="buyBundleConfirm(${b.id}, document.getElementById('bundle-qty-${b.id}').value)" class="btn-primary w-full py-2 rounded-lg">Mua combo</button></div>`).join('')}</div>` : '';
+        const packagesHtml = `<h2 class="text-2xl font-bold mb-4 mt-6 text-green-400">📦 Gói thuê key</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-6">${db.packages.map(p => `<div class="glass-card rounded-xl p-6 text-center"><i class="fas fa-clock text-3xl text-green-400"></i><h3 class="text-xl font-bold mt-2">${p.name}</h3><div class="text-2xl font-bold text-green-400 my-3">${p.price.toLocaleString()}đ</div><div class="flex justify-center gap-2 mb-3"><label class="text-sm">SL:</label><input type="number" id="qty-${p.id}" min="1" max="10" value="1" class="w-20 bg-gray-700 text-center rounded-lg px-2 py-1"></div><button onclick="buyWithConfirm(${p.id}, document.getElementById('qty-${p.id}').value)" class="btn-primary w-full py-2 rounded-lg">Mua ngay</button></div>`).join('')}</div>`;
+        
+        document.getElementById('pageContent').innerHTML = announcementsHtml + subHtml + introHtml + bundlesHtml + packagesHtml;
+    }
+    
+    function showToolGuide(tool) {
+        if (tool === 'fb') alert("Hướng dẫn Phantom Anchor PRO:\n1. Cài Tampermonkey.\n2. Tải script từ link.\n3. Tạo script mới, paste code, lưu.\n4. Bật script, truy cập Facebook.\n5. Nhập key để kích hoạt.\nLiên hệ Zalo 0935763789 nếu cần hỗ trợ.");
+        else alert("Hướng dẫn OLM Hacker Pro:\n1. Cài Tampermonkey.\n2. Tải script từ link.\n3. Tạo script mới, paste code, lưu.\n4. Bật script, vào OLM.\n5. Nhập key để kích hoạt.");
+    }
+
+    function renderHistoryPage() {
+        if (!currentUser) { document.getElementById('pageContent').innerHTML = `<div class="text-center py-10">Vui lòng đăng nhập.</div>`; return; }
+        const orders = db.orders.filter(o => o.userId === currentUser.id);
+        if (!orders.length) { document.getElementById('pageContent').innerHTML = `<div class="text-center py-10">Chưa có đơn hàng.</div>`; return; }
+        const html = `<h2 class="text-2xl font-bold mb-6 text-green-400">Lịch sử mua key</h2>${orders.map(order => `<div class="glass-card rounded-xl p-5 mb-4"><div class="flex justify-between"><div><span class="text-gray-400">#${order.id}</span> - ${new Date(order.createdAt).toLocaleString()}</div><div class="font-bold text-green-400">${order.total.toLocaleString()}đ</div></div><div class="mt-2">${order.items.map(i => i.type==='bundle' ? `${i.bundleName} x${i.quantity}` : `${i.packageName} x${i.quantity}`).join(', ')}</div>${order.couponCode ? `<div class="text-xs text-green-400">Mã: ${order.couponCode}</div>` : ''}${order.keys ? `<div class="mt-2"><div class="font-semibold">Key đã nhận:</div><div class="bg-gray-900 p-2 rounded text-xs font-mono">${order.keys.map(k => typeof k === 'string' ? k : `${k.packageName}: ${k.code}`).join(', ')}</div></div>` : ''}</div>`).join('')}</div>`;
+        document.getElementById('pageContent').innerHTML = html;
+    }
+
+    // ==================== NẠP TIỀN ====================
+    function requestRecharge() {
+        if (!currentUser) { showToast("Vui lòng đăng nhập", "error"); return; }
+        const amount = prompt("Nhập số tiền nạp (VNĐ):", "100000");
+        if (!amount) return;
+        const num = parseInt(amount);
+        if (isNaN(num) || num <= 0) { showToast("Số tiền không hợp lệ", "error"); return; }
+        db.rechargeRequests.unshift({ id: Date.now(), userId: currentUser.id, amount: num, status: 'pending', createdAt: new Date().toISOString() });
+        saveDb();
+        const description = `Nap tien ${num} cho user ${currentUser.username}`;
+        const qrUrl = `https://qr.sepay.vn/img?acc=8808306774&bank=BIDV&amount=${num}&des=${encodeURIComponent(description)}`;
+        const modalHtml = `<div id="rechargeModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50"><div class="bg-gray-800 rounded-2xl p-6 max-w-md w-full"><h3 class="text-xl font-bold mb-4 text-green-400">Nạp tiền</h3><p>Số tiền: <span class="text-green-400 font-bold">${num.toLocaleString()}đ</span></p><div class="bg-white p-2 rounded-lg my-4"><img src="${qrUrl}" class="w-48 h-48 mx-auto"></div><p class="text-sm text-gray-400 mb-4">Quét QR chuyển khoản, admin sẽ duyệt.</p><button id="closeRechargeModal" class="w-full bg-gray-600 py-2 rounded-lg">Đóng</button></div></div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        document.getElementById('closeRechargeModal').onclick = () => document.getElementById('rechargeModal').remove();
+        showToast("Yêu cầu nạp đã gửi, chờ admin duyệt", "success");
+    }
+
+    // ==================== ADMIN PANEL ====================
+    let currentAdminTab = 'packages';
+    function renderAdminPage() {
+        if (!currentUser || currentUser.role !== 'admin') { showToast("Không có quyền", "error"); setPage('home'); return; }
+        const totalRevenue = db.orders.reduce((s,o)=>s+o.total,0);
+        const stats = `<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"><div class="glass-card p-4 text-center"><div class="text-2xl font-bold text-green-400">${totalRevenue.toLocaleString()}đ</div><div>Doanh thu</div></div><div class="glass-card p-4 text-center"><div class="text-2xl font-bold text-green-400">${db.orders.length}</div><div>Đơn hàng</div></div><div class="glass-card p-4 text-center"><div class="text-2xl font-bold text-green-400">${db.users.length}</div><div>Người dùng</div></div><div class="glass-card p-4 text-center"><div class="text-2xl font-bold text-green-400">${db.keys.filter(k=>k.used).length}/${db.keys.length}</div><div>Key đã bán</div></div></div>`;
+        const tabs = `<div class="flex flex-wrap gap-2 mb-6"><button class="admin-tab ${currentAdminTab==='packages'?'active':''}" data-tab="packages">Gói thuê</button><button class="admin-tab ${currentAdminTab==='bundles'?'active':''}" data-tab="bundles">Gói kết hợp</button><button class="admin-tab ${currentAdminTab==='coupons'?'active':''}" data-tab="coupons">Mã giảm giá</button><button class="admin-tab ${currentAdminTab==='keys'?'active':''}" data-tab="keys">Quản lý key</button><button class="admin-tab ${currentAdminTab==='versions'?'active':''}" data-tab="versions">Phiên bản</button><button class="admin-tab ${currentAdminTab==='orders'?'active':''}" data-tab="orders">Đơn hàng</button><button class="admin-tab ${currentAdminTab==='users'?'active':''}" data-tab="users">Người dùng</button><button class="admin-tab ${currentAdminTab==='recharges'?'active':''}" data-tab="recharges">Nạp tiền</button><button class="admin-tab ${currentAdminTab==='announcements'?'active':''}" data-tab="announcements">Thông báo chính</button><button class="admin-tab ${currentAdminTab==='subannouncements'?'active':''}" data-tab="subannouncements">Thông báo phụ</button><button class="admin-tab ${currentAdminTab==='affiliate'?'active':''}" data-tab="affiliate">Hoa hồng</button><button class="admin-tab ${currentAdminTab==='tickets'?'active':''}" data-tab="tickets">Vé hỗ trợ</button><button class="admin-tab ${currentAdminTab==='backup'?'active':''}" data-tab="backup">💾 Sao lưu & phục hồi</button></div><div id="adminTabContent"></div>`;
+        document.getElementById('pageContent').innerHTML = stats + tabs;
+        renderAdminTab(currentAdminTab);
+        document.querySelectorAll('.admin-tab').forEach(btn => btn.addEventListener('click', (e) => { currentAdminTab = btn.dataset.tab; renderAdminPage(); }));
+    }
+    function renderAdminTab(tab) {
+        const container = document.getElementById('adminTabContent');
+        if (!container) return;
+        if (tab === 'packages') {
+            let html = `<button onclick="showAddPackageForm()" class="btn-primary px-4 py-2 rounded-lg mb-4">+ Thêm gói thuê</button><div>${db.packages.map(p => `<div class="glass-card p-4 mb-2 flex justify-between items-center"><div><strong>${p.name}</strong><br>${p.days} ngày - ${p.price.toLocaleString()}đ</div><div><button onclick="editPackage(${p.id})" class="text-green-400 mr-2"><i class="fas fa-edit"></i></button><button onclick="deletePackage(${p.id})" class="text-red-400"><i class="fas fa-trash"></i></button></div></div>`).join('')}</div>`;
+            container.innerHTML = html;
+        } else if (tab === 'bundles') {
+            let html = `<button onclick="addBundle()" class="btn-primary px-4 py-2 rounded-lg mb-4">+ Thêm gói kết hợp</button><div>${db.bundles.map(b => `<div class="glass-card p-4 mb-2"><div><strong>${b.name}</strong> - ${b.price.toLocaleString()}đ<br>${b.description}<br>Bao gồm: ${b.items.map(i => `gói ${i.packageId} x${i.quantity}`).join(', ')}</div><div class="mt-2"><button onclick="editBundle(${b.id})" class="text-green-400 mr-2">Sửa</button><button onclick="deleteBundle(${b.id})" class="text-red-400">Xóa</button></div></div>`).join('')}</div>`;
+            container.innerHTML = html;
+        } else if (tab === 'coupons') {
+            let html = `<button onclick="addCoupon()" class="btn-primary px-4 py-2 rounded-lg mb-4">+ Thêm mã giảm giá</button><div>${db.coupons.map(c => `<div class="glass-card p-3 mb-2"><div><strong>${c.code}</strong> - ${c.type==='percent'?c.value+'%':c.value.toLocaleString()+'đ'}<br>Đã dùng: ${c.usedCount}/${c.maxUses||'∞'} - Hết hạn: ${c.expiresAt?new Date(c.expiresAt).toLocaleDateString():'Không'}</div><div class="mt-2"><button onclick="editCoupon(${c.id})" class="text-green-400 mr-2">Sửa</button><button onclick="deleteCoupon(${c.id})" class="text-red-400">Xóa</button></div></div>`).join('')}</div>`;
+            container.innerHTML = html;
+        } else if (tab === 'keys') {
+            let html = `<div class="mb-4"><textarea id="bulkKeys" rows="3" class="w-full bg-gray-800 px-3 py-2 rounded-lg" placeholder="Mỗi dòng một key&#10;KEY1&#10;KEY2"></textarea><select id="bulkPackage" class="bg-gray-800 px-3 py-2 rounded-lg mt-2">${db.packages.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}</select><button onclick="addBulkKeys()" class="btn-primary px-4 py-2 rounded-lg mt-2">Thêm hàng loạt</button></div><div>${db.keys.map(k => { const pkg = db.packages.find(p=>p.id===k.packageId); const isExpired = k.expiresAt && k.expiresAt < Date.now(); const status = k.used ? (isExpired ? 'Hết hạn' : 'Đã bán') : 'Còn hàng'; return `<div class="glass-card p-3 mb-2 flex justify-between items-center"><div><code>${k.code}</code><br>${pkg?.name}<br>${k.used ? `Kích hoạt: ${new Date(k.activatedAt).toLocaleDateString()}<br>Hết hạn: ${new Date(k.expiresAt).toLocaleDateString()}` : ''}<span class="${isExpired?'text-red-400':'text-green-400'}">${status}</span></div><div><button onclick="renewKey(${k.id})" class="text-yellow-400 mr-2"><i class="fas fa-clock"></i> Gia hạn</button><button onclick="deleteKey(${k.id})" class="text-red-400"><i class="fas fa-trash"></i></button></div></div>`; }).join('')}</div>`;
+            container.innerHTML = html;
+        } else if (tab === 'versions') {
+            let html = `<button onclick="addVersion()" class="btn-primary px-4 py-2 rounded-lg mb-4">+ Thêm phiên bản</button><div>${db.versions.map(v => `<div class="glass-card p-3 mb-2"><div><strong>${v.tool === 'fb' ? 'Phantom Anchor PRO' : 'OLM Hacker Pro'}</strong> - v${v.version}<br>Link: <a href="${v.downloadUrl}" target="_blank" class="text-green-400">Tải</a><br>Ghi chú: ${v.changelog}<br>Ngày: ${new Date(v.createdAt).toLocaleString()}</div><div class="mt-2"><button onclick="editVersion(${v.id})" class="text-blue-400 mr-2">Sửa</button><button onclick="deleteVersion(${v.id})" class="text-red-400">Xóa</button></div></div>`).join('')}</div>`;
+            container.innerHTML = html;
+        } else if (tab === 'orders') {
+            container.innerHTML = `<div>${db.orders.map(o => `<div class="glass-card p-3 mb-2">#${o.id} - ${new Date(o.createdAt).toLocaleString()}<br>User: ${db.users.find(u=>u.id===o.userId)?.username} - ${o.total.toLocaleString()}đ<br>SP: ${o.items.map(i=>i.type==='bundle'?i.bundleName:i.packageName).join(', ')}</div>`).join('')}</div>`;
+        } else if (tab === 'users') {
+            container.innerHTML = `<div>${db.users.map(u => `<div class="glass-card p-3 mb-2 flex justify-between items-center"><div><strong>${u.username}</strong> (${u.role})<br>${u.email}<br>Số dư: ${u.balance.toLocaleString()}đ</div><div><button onclick="editUser(${u.id})" class="text-green-400 mr-2">Sửa</button><button onclick="deleteUser(${u.id})" class="text-red-400">Xóa</button></div></div>`).join('')}</div>`;
+        } else if (tab === 'recharges') {
+            const pending = db.rechargeRequests.filter(r => r.status === 'pending');
+            if (!pending.length) { container.innerHTML = '<p>Không có yêu cầu nạp.</p>'; return; }
+            container.innerHTML = pending.map(req => { const user = db.users.find(u=>u.id===req.userId); return `<div class="glass-card p-3 mb-2 flex justify-between items-center"><div><strong>${user?.username}</strong> - ${req.amount.toLocaleString()}đ<br>${new Date(req.createdAt).toLocaleString()}</div><div><button onclick="approveRecharge(${req.id})" class="btn-primary px-3 py-1 rounded-lg mr-2">Duyệt</button><button onclick="rejectRecharge(${req.id})" class="bg-red-600 px-3 py-1 rounded-lg">Từ chối</button></div></div>`; }).join('');
+        } else if (tab === 'announcements') {
+            let html = `<button onclick="addAnnouncement()" class="btn-primary px-4 py-2 rounded-lg mb-4">+ Thêm thông báo chính</button><div>${db.announcements.map(a => `<div class="glass-card p-3 mb-2"><p>${a.content}</p><p class="text-xs text-gray-400">${new Date(a.createdAt).toLocaleString()} - ${a.createdBy}</p><button onclick="deleteAnnouncement(${a.id})" class="text-red-400 mt-1">Xóa</button></div>`).join('')}</div>`;
+            container.innerHTML = html;
+        } else if (tab === 'subannouncements') {
+            let html = `<button onclick="addSubAnnouncement()" class="btn-primary px-4 py-2 rounded-lg mb-4">+ Thêm thông báo phụ</button><div>${db.subAnnouncements.map(a => `<div class="glass-card p-3 mb-2"><p>${a.content}</p><p class="text-xs text-gray-400">${new Date(a.createdAt).toLocaleString()} - ${a.createdBy}</p><button onclick="deleteSubAnnouncement(${a.id})" class="text-red-400 mt-1">Xóa</button></div>`).join('')}</div>`;
+            container.innerHTML = html;
+        } else if (tab === 'affiliate') {
+            container.innerHTML = `<div class="glass-card p-4"><h3 class="font-bold mb-2 text-green-300">Cài đặt hoa hồng</h3><div class="flex gap-2 items-center"><label>Phần trăm (%):</label><input type="number" id="commissionPercent" value="${db.affiliateSettings.commissionPercent}" class="bg-gray-800 px-3 py-2 rounded-lg w-24"><button onclick="updateCommission()" class="btn-primary px-4 py-2 rounded-lg">Lưu</button></div></div>`;
+        } else if (tab === 'tickets') {
+            renderAdminTickets();
+        } else if (tab === 'backup') {
+            container.innerHTML = `<div class="glass-card p-6"><h3 class="text-xl font-bold mb-4 text-green-400">💾 Sao lưu & phục hồi dữ liệu</h3><button onclick="exportBackup()" class="btn-primary px-4 py-2 rounded-lg mr-4"><i class="fas fa-download"></i> Xuất file JSON</button><div class="mt-4"><input type="file" id="restoreFile" accept=".json" class="bg-gray-800 px-3 py-2 rounded-lg"><button onclick="importBackup()" class="btn-primary mt-2 px-4 py-2 rounded-lg">Phục hồi</button></div><p class="text-sm text-gray-400 mt-4">⚠️ Phục hồi sẽ ghi đè toàn bộ dữ liệu hiện tại. Hãy sao lưu trước.</p></div>`;
+        }
+    }
+    // Hàm admin hỗ trợ
+    window.addBulkKeys = function() {
+        const text = document.getElementById('bulkKeys').value;
+        const packageId = parseInt(document.getElementById('bulkPackage').value);
+        const lines = text.split(/\r?\n/).filter(l => l.trim());
+        let added = 0;
+        for (let line of lines) {
+            if (line.trim()) {
+                db.keys.push({ id: Date.now(), packageId, code: line.trim(), used: false, orderId: null, activatedAt: null, expiresAt: null, autoRenew: false });
+                added++;
+            }
+        }
+        saveDb();
+        renderAdminTab('keys');
+        showToast(`Đã thêm ${added} key`, "success");
+    };
+    window.addCoupon = function() {
+        const code = prompt("Mã giảm giá:"); if(!code) return;
+        const type = confirm("Loại? OK = %, Cancel = số tiền") ? "percent" : "fixed";
+        const value = parseFloat(prompt("Giá trị:"));
+        if(isNaN(value)) return;
+        const maxUses = parseInt(prompt("Số lần tối đa (0=không giới hạn):") || "0");
+        const expires = prompt("Ngày hết hạn (YYYY-MM-DD):");
+        let expiresAt = null;
+        if(expires) { const d = new Date(expires); if(!isNaN(d)) expiresAt = d.toISOString(); }
+        db.coupons.push({ id: Date.now(), code: code.toUpperCase(), type, value, maxUses: maxUses||0, usedCount: 0, expiresAt });
+        saveDb(); renderAdminTab('coupons'); showToast("Thêm mã thành công","success");
+    };
+    window.editCoupon = function(id) {
+        const c = db.coupons.find(c=>c.id===id); if(!c) return;
+        const newCode = prompt("Mã mới:", c.code); if(newCode) c.code = newCode.toUpperCase();
+        const newType = confirm("Loại? OK = %, Cancel = số tiền") ? "percent" : "fixed"; c.type = newType;
+        const newVal = parseFloat(prompt("Giá trị mới:", c.value)); if(!isNaN(newVal)) c.value = newVal;
+        const newMax = parseInt(prompt("Số lần tối đa:", c.maxUses)); if(!isNaN(newMax)) c.maxUses = newMax;
+        const newExp = prompt("Ngày hết hạn (YYYY-MM-DD):", c.expiresAt?new Date(c.expiresAt).toISOString().slice(0,10):""); if(newExp){ const d=new Date(newExp); if(!isNaN(d)) c.expiresAt=d.toISOString(); else c.expiresAt=null; } else c.expiresAt=null;
+        saveDb(); renderAdminTab('coupons'); showToast("Cập nhật thành công","success");
+    };
+    window.deleteCoupon = function(id) { if(confirm("Xóa?")){ db.coupons = db.coupons.filter(c=>c.id!==id); saveDb(); renderAdminTab('coupons'); showToast("Đã xóa","success"); } };
+    window.addBundle = function() {
+        const name = prompt("Tên combo:"); if(!name) return;
+        const desc = prompt("Mô tả:"); if(!desc) return;
+        const price = parseInt(prompt("Giá:"));
+        if(isNaN(price)) return;
+        let items = [];
+        while(true){
+            const pkgList = db.packages.map(p=>`${p.id}: ${p.name}`).join("\n");
+            const pkgId = prompt(`ID gói đơn:\n${pkgList}\nNhập 'done' để kết thúc:`);
+            if(pkgId==='done') break;
+            const pid = parseInt(pkgId);
+            if(!db.packages.find(p=>p.id===pid)){ alert("ID không hợp lệ"); continue; }
+            const qty = parseInt(prompt("Số lượng:"));
+            if(isNaN(qty)) continue;
+            items.push({ packageId: pid, quantity: qty });
+        }
+        if(items.length===0) return;
+        db.bundles.push({ id: Date.now(), name, description: desc, price, items });
+        saveDb(); renderAdminTab('bundles'); renderHomePage(); showToast("Thêm combo","success");
+    };
+    window.editBundle = function(id) {
+        const b = db.bundles.find(b=>b.id===id); if(!b) return;
+        b.name = prompt("Tên mới:", b.name) || b.name;
+        b.description = prompt("Mô tả mới:", b.description) || b.description;
+        const newPrice = parseInt(prompt("Giá mới:", b.price)); if(!isNaN(newPrice)) b.price = newPrice;
+        saveDb(); renderAdminTab('bundles'); renderHomePage(); showToast("Cập nhật","success");
+    };
+    window.deleteBundle = function(id) { if(confirm("Xóa combo?")){ db.bundles = db.bundles.filter(b=>b.id!==id); saveDb(); renderAdminTab('bundles'); renderHomePage(); showToast("Đã xóa","success"); } };
+    window.showAddPackageForm = function() {
+        const name = prompt("Tên gói:"); if(!name) return;
+        const days = parseInt(prompt("Số ngày:")); if(isNaN(days)) return;
+        const price = parseInt(prompt("Giá:")); if(isNaN(price)) return;
+        db.packages.push({ id: Date.now(), name, days, price });
+        saveDb(); renderAdminTab('packages'); renderHomePage(); showToast("Thêm gói","success");
+    };
+    window.editPackage = function(id) {
+        const p = db.packages.find(p=>p.id===id); if(!p) return;
+        p.name = prompt("Tên mới:", p.name) || p.name;
+        p.days = parseInt(prompt("Số ngày mới:", p.days)) || p.days;
+        p.price = parseInt(prompt("Giá mới:", p.price)) || p.price;
+        saveDb(); renderAdminTab('packages'); renderHomePage(); showToast("Cập nhật","success");
+    };
+    window.deletePackage = function(id) { if(confirm("Xóa gói?")){ db.packages = db.packages.filter(p=>p.id!==id); db.keys = db.keys.filter(k=>k.packageId!==id); saveDb(); renderAdminTab('packages'); renderHomePage(); showToast("Đã xóa","success"); } };
+    window.deleteKey = function(id) { if(confirm("Xóa key?")){ db.keys = db.keys.filter(k=>k.id!==id); saveDb(); renderAdminTab('keys'); showToast("Đã xóa","success"); } };
+    window.editUser = function(id) {
+        const user = db.users.find(u=>u.id===id); if(!user) return;
+        const newEmail = prompt("Email mới:", user.email); if(newEmail) user.email = newEmail;
+        const newFull = prompt("Họ tên mới:", user.fullName); if(newFull) user.fullName = newFull;
+        const newPass = prompt("Mật khẩu mới (bỏ trống nếu không đổi):"); if(newPass && newPass.length>=6) user.password = newPass;
+        const newRole = confirm("Chuyển thành admin? (OK=admin, Cancel=user)") ? "admin" : "user";
+        if(user.username !== 'haidangrb') user.role = newRole;
+        saveDb(); renderAdminTab('users'); showToast("Cập nhật user","success");
+    };
+    window.deleteUser = function(id) { if(confirm("Xóa user?")){ if(db.users.find(u=>u.id===id)?.username==='haidangrb'){ showToast("Không thể xóa admin chính","error"); return; } db.users = db.users.filter(u=>u.id!==id); saveDb(); renderAdminTab('users'); showToast("Đã xóa","success"); } };
+    window.approveRecharge = function(id) {
+        const req = db.rechargeRequests.find(r=>r.id===id); if(!req) return;
+        const user = db.users.find(u=>u.id===req.userId); if(!user) return;
+        user.balance = (user.balance||0) + req.amount;
+        req.status = 'completed';
+        saveDb(); renderAdminTab('recharges'); renderAdminTab('users'); if(currentUser && currentUser.id===user.id) updateUIForUser();
+        showToast(`Đã duyệt nạp ${req.amount.toLocaleString()}đ cho ${user.username}`,"success");
+    };
+    window.rejectRecharge = function(id) {
+        db.rechargeRequests = db.rechargeRequests.filter(r=>r.id!==id);
+        saveDb(); renderAdminTab('recharges'); showToast("Từ chối yêu cầu","success");
+    };
+    window.updateCommission = function() {
+        const percent = parseInt(document.getElementById('commissionPercent').value);
+        if(!isNaN(percent)){ db.affiliateSettings.commissionPercent = percent; saveDb(); showToast("Đã cập nhật hoa hồng","success"); }
+    };
+    window.addVersion = function() {
+        const tool = confirm("Chọn tool? OK = Facebook, Cancel = OLM") ? "fb" : "olm";
+        const version = prompt("Số phiên bản (vd: 3.0.1):");
+        if (!version) return;
+        const downloadUrl = prompt("Link tải script (raw URL):");
+        if (!downloadUrl) return;
+        const changelog = prompt("Ghi chú thay đổi:");
+        db.versions.push({ id: Date.now(), tool, version, downloadUrl, changelog, createdAt: new Date().toISOString() });
+        saveDb(); renderAdminTab('versions'); renderHomePage(); showToast("Thêm phiên bản thành công", "success");
+    };
+    window.editVersion = function(id) {
+        const v = db.versions.find(v=>v.id===id);
+        if(!v) return;
+        const newVersion = prompt("Số phiên bản mới:", v.version);
+        if(newVersion) v.version = newVersion;
+        const newUrl = prompt("Link tải mới:", v.downloadUrl);
+        if(newUrl) v.downloadUrl = newUrl;
+        const newChangelog = prompt("Ghi chú mới:", v.changelog);
+        if(newChangelog) v.changelog = newChangelog;
+        saveDb(); renderAdminTab('versions'); renderHomePage(); showToast("Cập nhật thành công", "success");
+    };
+    window.deleteVersion = function(id) {
+        if(confirm("Xóa phiên bản?")){ db.versions = db.versions.filter(v=>v.id!==id); saveDb(); renderAdminTab('versions'); renderHomePage(); showToast("Đã xóa","success"); }
+    };
+    window.renewKey = function(keyId) {
+        const key = db.keys.find(k=>k.id===keyId);
+        if(!key || !key.used) { showToast("Key chưa được kích hoạt hoặc không tồn tại","error"); return; }
+        const pkg = db.packages.find(p=>p.id===key.packageId);
+        if(!pkg) return;
+        const days = parseInt(prompt(`Nhập số ngày muốn gia hạn (hiện tại hết hạn ${new Date(key.expiresAt).toLocaleDateString()}):`, pkg.days));
+        if(isNaN(days)) return;
+        key.expiresAt = key.expiresAt + days * 86400000;
+        saveDb(); renderAdminTab('keys'); showToast(`Đã gia hạn key ${key.code} thêm ${days} ngày`, "success");
+    };
+    function addAnnouncement() { const c = prompt("Nội dung thông báo chính:"); if(c){ db.announcements.unshift({ id: Date.now(), content: c, createdAt: new Date().toISOString(), createdBy: currentUser.username }); saveDb(); renderAdminTab('announcements'); renderHomePage(); showToast("Đã thêm","success"); } }
+    function deleteAnnouncement(id) { if(confirm("Xóa?")){ db.announcements = db.announcements.filter(a=>a.id!==id); saveDb(); renderAdminTab('announcements'); renderHomePage(); showToast("Đã xóa","success"); } }
+    function addSubAnnouncement() { const c = prompt("Nội dung thông báo phụ:"); if(c){ db.subAnnouncements.unshift({ id: Date.now(), content: c, createdAt: new Date().toISOString(), createdBy: currentUser.username }); saveDb(); renderAdminTab('subannouncements'); renderHomePage(); showToast("Đã thêm","success"); } }
+    function deleteSubAnnouncement(id) { if(confirm("Xóa?")){ db.subAnnouncements = db.subAnnouncements.filter(a=>a.id!==id); saveDb(); renderAdminTab('subannouncements'); renderHomePage(); showToast("Đã xóa","success"); } }
+
+    // ==================== SAO LƯU DỮ LIỆU ====================
+    window.exportBackup = function() {
+        const dataStr = JSON.stringify(db, null, 2);
+        const blob = new Blob([dataStr], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `phantom_backup_${new Date().toISOString().slice(0,19)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast("Đã xuất file sao lưu!", "success");
+    };
+    window.importBackup = function() {
+        const fileInput = document.getElementById('restoreFile');
+        if (!fileInput.files.length) { showToast("Vui lòng chọn file JSON", "error"); return; }
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if (imported.users && imported.packages) {
+                    db = imported;
+                    saveDb();
+                    // Reload lại trang để cập nhật giao diện
+                    alert("Phục hồi thành công! Trang sẽ tải lại.");
+                    location.reload();
+                } else {
+                    showToast("File không đúng định dạng backup!", "error");
+                }
+            } catch(err) {
+                showToast("Lỗi đọc file: " + err.message, "error");
+            }
+        };
+        reader.readAsText(file);
+    };
+
+    // ==================== AUTH MODAL ====================
+    function showAuthModal() {
+        const modalHtml = `<div id="authModal" class="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-[1000]"><div class="bg-gray-800 rounded-2xl p-6 max-w-md w-full border border-green-500/30"><div class="flex justify-between items-center mb-4"><h3 class="text-xl font-bold text-green-400" id="authTitle">Đăng nhập</h3></div><div id="authForm"></div></div></div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        let isLogin = true;
+        function renderAuthForm() {
+            const formDiv = document.getElementById('authForm');
+            if (isLogin) {
+                formDiv.innerHTML = `<input type="text" id="loginUsername" placeholder="Tên đăng nhập" class="w-full bg-gray-700 px-3 py-2 rounded-lg mb-3"><input type="password" id="loginPassword" placeholder="Mật khẩu" class="w-full bg-gray-700 px-3 py-2 rounded-lg mb-3">${renderCaptcha()}<button id="doLogin" class="w-full btn-primary py-2 rounded-lg">Đăng nhập</button><p class="text-center mt-4"><button id="switchToRegister" class="text-green-400">Chưa có tài khoản? Đăng ký</button> | <button id="forgotPasswordBtn" class="text-yellow-400">Quên mật khẩu?</button></p>`;
+                document.getElementById('doLogin').onclick = () => {
+                    if (!verifyCaptcha()) return;
+                    const user = db.users.find(u => u.username === document.getElementById('loginUsername').value && u.password === document.getElementById('loginPassword').value);
+                    if (user) { setCurrentUser(user); document.getElementById('authModal').remove(); showToast("Đăng nhập thành công","success"); }
+                    else showToast("Sai tài khoản hoặc mật khẩu","error");
+                };
+                document.getElementById('switchToRegister').onclick = () => { isLogin = false; renderAuthForm(); };
+                document.getElementById('forgotPasswordBtn').onclick = () => { document.getElementById('authModal').remove(); requestResetPassword(); };
+            } else {
+                formDiv.innerHTML = `<input type="text" id="regUsername" placeholder="Tên đăng nhập" class="w-full bg-gray-700 px-3 py-2 rounded-lg mb-3"><input type="text" id="regFullName" placeholder="Họ và tên" class="w-full bg-gray-700 px-3 py-2 rounded-lg mb-3"><input type="email" id="regEmail" placeholder="Email" class="w-full bg-gray-700 px-3 py-2 rounded-lg mb-3"><input type="tel" id="regPhone" placeholder="Số điện thoại" class="w-full bg-gray-700 px-3 py-2 rounded-lg mb-3"><input type="password" id="regPassword" placeholder="Mật khẩu" class="w-full bg-gray-700 px-3 py-2 rounded-lg mb-3"><input type="password" id="regConfirm" placeholder="Xác nhận mật khẩu" class="w-full bg-gray-700 px-3 py-2 rounded-lg mb-3">${renderCaptcha()}<button id="doRegister" class="w-full btn-primary py-2 rounded-lg">Đăng ký</button><p class="text-center mt-4"><button id="switchToLogin" class="text-green-400">Đã có tài khoản? Đăng nhập</button></p>`;
+                document.getElementById('doRegister').onclick = () => {
+                    if (!verifyCaptcha()) return;
+                    const username = document.getElementById('regUsername').value.trim();
+                    const fullName = document.getElementById('regFullName').value.trim();
+                    const email = document.getElementById('regEmail').value.trim();
+                    const phone = document.getElementById('regPhone').value.trim();
+                    const pwd = document.getElementById('regPassword').value;
+                    const confirm = document.getElementById('regConfirm').value;
+                    if (!username || !fullName || !email || !pwd) { showToast("Vui lòng nhập đầy đủ","error"); return; }
+                    if (pwd !== confirm) { showToast("Mật khẩu xác nhận không khớp","error"); return; }
+                    if (db.users.find(u => u.username === username)) { showToast("Tên đã tồn tại","error"); return; }
+                    if (db.users.find(u => u.email === email)) { showToast("Email đã được sử dụng","error"); return; }
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const refCode = urlParams.get('ref');
+                    let referredBy = null;
+                    if (refCode) {
+                        const referrer = db.users.find(u => u.referralCode === refCode);
+                        if (referrer) { referredBy = referrer.id; if(!referrer.referrals) referrer.referrals=[]; referrer.referrals.push(username); }
+                    }
+                    const newUser = { id: Date.now(), username, password: pwd, email, role: 'user', balance: 0, fullName, phone, address: "", createdAt: new Date().toISOString(), referralCode: username + Math.random().toString(36).substring(2,6).toUpperCase(), referrals: [], commissionEarned: 0, referredBy };
+                    db.users.push(newUser);
+                    saveDb();
+                    setCurrentUser(newUser);
+                    document.getElementById('authModal').remove();
+                    showToast("Đăng ký thành công","success");
+                };
+                document.getElementById('switchToLogin').onclick = () => { isLogin = true; renderAuthForm(); };
+            }
+        }
+        renderAuthForm();
+    }
+    function showToast(msg, type) { const toast = document.createElement('div'); toast.className = `toast ${type==='error'?'toast-error':''}`; toast.innerHTML = `<i class="fas fa-${type==='success'?'check-circle':'exclamation-circle'} mr-2"></i> ${msg}`; document.body.appendChild(toast); setTimeout(() => toast.remove(), 3000); }
+    function demoAlert() { alert("Đây là demo, chức năng tải script chưa có."); }
+
+    // ==================== ROUTER ====================
+    let currentPage = 'home';
+    function setPage(page) { currentPage = page; renderCurrentPage(); document.querySelectorAll('.nav-link').forEach(link => { if(link.getAttribute('data-page')===page) link.classList.add('text-green-400'); else link.classList.remove('text-green-400'); }); }
+    function renderCurrentPage() {
+        if (currentPage === 'home') renderHomePage();
+        else if (currentPage === 'profile') renderProfilePage();
+        else if (currentPage === 'affiliate') renderAffiliatePage();
+        else if (currentPage === 'history') renderHistoryPage();
+        else if (currentPage === 'support') renderSupportPage();
+        else if (currentPage === 'admin') renderAdminPage();
+    }
+
+    initSampleData();
+    loadCurrentUser();
+    if (!currentUser) showAuthModal();
+    else { document.getElementById('appContent').style.display = 'flex'; setPage('home'); }
+
+    const resetToken = new URLSearchParams(window.location.search).get('reset_token');
+    if (resetToken) { const entry = db.resetTokens.find(t => t.token === resetToken && t.expires > Date.now()); if (entry) showResetPasswordModal(resetToken); else alert("Token không hợp lệ hoặc đã hết hạn"); window.history.replaceState({}, document.title, window.location.pathname); }
+
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.nav-link')) { e.preventDefault(); setPage(e.target.closest('.nav-link').getAttribute('data-page')); }
+        if (e.target.closest('#userBtn')) { document.getElementById('userDropdown').classList.toggle('hidden'); }
+        if (e.target.closest('#logoutBtn')) { e.preventDefault(); setCurrentUser(null); showToast("Đã đăng xuất","success"); }
+    });
+    window.addEventListener('click', (e) => { if (!e.target.closest('#userMenu')) document.getElementById('userDropdown').classList.add('hidden'); });
+</script>
+
+<!-- Tawk.to Widget Chat -->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/69e60dfc49bb761c347ce272/1jmlad9it';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+</body>
+</html>
