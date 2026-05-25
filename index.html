@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Haidwng Store</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:radial-gradient(ellipse at 30%20%,#05050f,#000);font-family:'Inter',sans-serif;color:#fff;min-height:100vh;padding-bottom:80px;overflow-x:hidden}
+    .glitter{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+    .glitter i{position:absolute;background:radial-gradient(circle,#fff,#0ff);border-radius:50%;animation:twinkle 2s infinite alternate;opacity:0}
+    @keyframes twinkle{0%{opacity:0;transform:scale(0.3)}100%{opacity:0.8;transform:scale(1)}}
+    .cosmic{position:fixed;inset:0;background:radial-gradient(circle at 20%30%,rgba(0,255,255,0.08),transparent 70%);pointer-events:none;z-index:0}
+    .nebula{position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:0;animation:drift 28s infinite alternate}
+    .nebula1{width:60vw;height:60vw;background:#0ff20;top:-30%;left:-30%}
+    .nebula2{width:70vw;height:70vw;background:#f0f20;bottom:-40%;right:-30%;animation-duration:35s}
+    @keyframes drift{0%{transform:translate(0,0) scale(1);opacity:0.2}100%{transform:translate(8%,10%) scale(1.2);opacity:0.5}}
+    .snow-layer{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:100}
+    .snow{position:absolute;top:-8px;background:rgba(255,255,255,0.8);border-radius:50%;animation:fall linear infinite;will-change:transform}
+    @keyframes fall{to{transform:translateY(100vh)}}
+    .glass{background:rgba(8,12,25,0.65);backdrop-filter:blur(20px);border-radius:56px;border:1px solid rgba(0,255,255,0.4);transition:all 0.25s;box-shadow:0 20px 35px -10px rgba(0,0,0,0.5)}
+    .glass:hover{transform:translateY(-3px);border-color:#0ff;box-shadow:0 25px 40px -12px rgba(0,255,255,0.2)}
+    .btn{background:linear-gradient(105deg,#0ff,#f0f);border-radius:60px;padding:12px 24px;font-weight:800;color:#fff;box-shadow:0 0 12px #0ff;cursor:pointer;transition:0.1s;text-align:center}
+    .btn:active{transform:scale(0.96);box-shadow:0 0 6px #0ff}
+    .input{background:rgba(0,0,0,0.65);border:1px solid rgba(0,255,255,0.5);border-radius:60px;padding:12px 20px;color:#fff;width:100%;transition:0.15s}
+    .input:focus{outline:none;border-color:#f0f;box-shadow:0 0 14px #f0f}
+    .tab-bar{position:fixed;bottom:12px;left:12px;right:12px;background:rgba(5,8,20,0.9);backdrop-filter:blur(32px);border-radius:56px;border:1px solid rgba(0,255,255,0.6);display:flex;justify-content:space-around;padding:6px 10px;z-index:50}
+    .tab{display:flex;flex-direction:column;align-items:center;gap:3px;color:#aaa;font-size:11px;font-weight:600;padding:6px 12px;border-radius:40px;transition:0.15s;cursor:pointer}
+    .tab i{font-size:20px}
+    .tab.active{background:linear-gradient(105deg,#0ff,#f0f);color:#000;box-shadow:0 0 12px #0ff;transform:translateY(-2px)}
+    .page{transition:opacity 0.3s,transform 0.35s;opacity:0;transform:translateY(18px);pointer-events:none;position:absolute;top:0;left:0;width:100%}
+    .page.active{opacity:1;transform:translateY(0);pointer-events:auto;position:relative}
+    .game-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    .game-card{background:rgba(0,0,0,0.5);border:1px solid #0ff;border-radius:48px;padding:14px 6px;text-align:center;font-weight:800;cursor:pointer;transition:0.1s}
+    .game-card:active{transform:scale(0.96)}
+    .game-card.selected{background:linear-gradient(105deg,#0ff,#f0f);border-color:#fff;color:#000;box-shadow:0 0 15px #0ff}
+    .pkg-chip{background:rgba(0,0,0,0.5);border:1px solid #0ff;border-radius:40px;padding:6px 16px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;gap:8px;align-items:baseline}
+    .pkg-chip.selected{background:linear-gradient(105deg,#0ff,#f0f);color:#000;border:none;box-shadow:0 0 12px #0ff}
+    .qty-panel{background:rgba(0,0,0,0.4);border-radius:40px;padding:4px 12px;display:flex;align-items:center;gap:20px}
+    .qty-btn{width:36px;height:36px;background:rgba(255,255,255,0.12);border-radius:36px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:22px;cursor:pointer}
+    .qty-btn:active{transform:scale(0.9);background:#0ff;color:#000}
+    .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#000000dd;backdrop-filter:blur(20px);padding:10px 24px;border-radius:60px;color:#0ff;font-weight:bold;z-index:200;opacity:0;transition:0.2s;white-space:nowrap;border-left:5px solid #0ff}
+    .toast.show{opacity:1;bottom:110px}
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,0.95);backdrop-filter:blur(40px);z-index:1000;display:flex;align-items:center;justify-content:center;visibility:hidden;opacity:0;transition:0.2s}
+    .modal.active{visibility:visible;opacity:1}
+    .modal-card{background:linear-gradient(145deg,#0f0f1f,#03030c);border-radius:56px;padding:28px;max-width:90%;width:400px;border:2px solid #0ff;box-shadow:0 0 40px #0ff;text-align:center}
+    .cart-item{background:#00000055;border-radius:32px;padding:10px;margin-bottom:10px;border-left:4px solid #0ff;display:flex;justify-content:space-between;align-items:center}
+    .cart-float{position:fixed;bottom:90px;right:16px;background:linear-gradient(135deg,#0ff,#f0f);border-radius:60px;padding:12px;z-index:45;box-shadow:0 0 20px #0ff;cursor:pointer}
+    .cart-count{position:absolute;top:-6px;right:-6px;background:#ff3366;border-radius:30px;padding:2px 8px;font-size:11px;font-weight:bold}
+    .key-box{background:#00000066;border-radius:24px;padding:10px;margin-bottom:8px;border-left:4px solid #0ff}
+    .pagination{display:flex;justify-content:center;gap:8px;margin-top:12px}
+    .page-btn{background:#0ff33;border:none;border-radius:30px;padding:4px 12px;color:#fff;cursor:pointer}
+    .page-btn.active{background:#0ff;color:#000}
+    .admin-section{border-top:1px solid #0ff55;margin-top:16px;padding-top:12px}
+    .loading{position:fixed;inset:0;background:#010105;z-index:2000;display:flex;flex-direction:column;justify-content:center;align-items:center;transition:0.5s}
+    .spinner{width:60px;height:60px;border:4px solid #0ff;border-top-color:#f0f;border-radius:50%;animation:spin 0.8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .glow-text{background:linear-gradient(90deg,#0ff,#f0f,#0ff);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:pulse 3s infinite alternate}
+    @keyframes pulse{0%{background-position:0%}100%{background-position:100%}}
+    .dance-cat{width:100px;filter:drop-shadow(0 0 15px cyan);animation:bounceCat 0.6s infinite alternate}
+    @keyframes bounceCat{from{transform:translateY(0)}to{transform:translateY(-18px)}}
+  </style>
+</head>
+<body>
+<div class="glitter" id="glitterContainer"></div>
+<div class="cosmic"></div>
+<div class="nebula nebula1"></div>
+<div class="nebula nebula2"></div>
+<div class="snow-layer" id="snowLayer"></div>
+<div id="loading" class="loading">
+  <div class="spinner"></div>
+  <img src="https://media.tenor.com/vkJQcnn06_EAAAAj/dancing-cat-oppa-gangnam-style.gif" class="dance-cat" alt="dancing cat">
+  <p class="text-cyan-300 mt-3 font-bold text-xl">Haidwng Store</p>
+</div>
+
+<div class="relative z-10 max-w-md mx-auto px-4 pt-5 pb-10">
+  <div class="text-center mb-6"><h1 class="text-5xl font-black glow-text">HAIDWNG STORE</h1><p class="text-cyan-400 text-sm mt-1">Chính hãng - Uy tín</p></div>
+
+  <!-- MAIN APP -->
+  <div id="mainApp">
+    <div class="page-container" id="pageContainer">
+      <div id="pageMuaKey" class="page active">
+        <div class="glass p-5 space-y-5">
+          <div class="text-xl font-bold text-cyan-400">🎮 CHỌN GAME</div>
+          <div id="gameList" class="game-grid"></div>
+          <div id="packageArea" class="hidden"><div class="text-md font-semibold text-cyan-400">📦 GÓI KEY</div><div id="packageList" class="flex flex-wrap gap-2 mt-2"></div></div>
+          <div class="flex justify-between"><span>🎮 Game:</span><span id="selectedGameLabel" class="text-cyan-400 font-bold">Chưa</span></div>
+          <div class="flex justify-between"><span>🔑 Gói:</span><span id="selectedPkgLabel" class="text-cyan-400 font-bold">---</span></div>
+          <div class="flex justify-between items-center"><span>🔢 Số lượng</span><div class="qty-panel"><div class="qty-btn" id="qtyMinus">-</div><span id="qtyValue" class="text-xl font-bold w-10 text-center">1</span><div class="qty-btn" id="qtyPlus">+</div></div></div>
+          <div class="flex gap-2"><input id="couponInput" placeholder="Mã giảm giá" class="input flex-1"><button id="applyCoupon" class="bg-purple-700 px-4 rounded-full text-sm">Áp dụng</button></div>
+          <div id="couponInfo" class="text-green-400 text-xs hidden"></div>
+          <div class="flex justify-between items-center pt-2 border-t border-white/20"><span class="font-bold">💰 Tổng</span><span id="totalPrice" class="text-2xl font-bold text-yellow-400">0đ</span></div>
+          <div class="flex gap-3"><button id="buyNowBtn" class="btn flex-1 py-3">⚡ MUA NGAY</button><button id="addToCartBtn" class="btn flex-1 py-3" style="background:transparent; border:1px solid cyan; box-shadow:none;">🛒 THÊM GIỎ</button></div>
+          <div id="buyWarn" class="text-red-400 text-xs text-center hidden">⚠️ CHƯA CHỌN GÓI</div>
+        </div>
+      </div>
+      <div id="pageMuaAcc" class="page"><div class="glass p-5 text-center"><div class="text-xl font-bold text-cyan-400">🎮 TÀI KHOẢN</div><p class="text-gray-400 mt-4">Liên hệ admin Telegram @haidwng12</p></div></div>
+      <div id="pageNapTien" class="page"><div class="glass p-5 space-y-4"><h2 class="text-xl font-bold text-center text-cyan-400">💸 NẠP TIỀN AUTO</h2><input type="number" id="depositAmount" placeholder="Số tiền (≥2.000đ)" class="input"><button id="createQrBtn" class="btn w-full">TẠO MÃ QR</button><div id="qrArea" class="hidden flex justify-center"><div id="qrCode" class="bg-white p-2 rounded-xl"></div></div><div id="qrInfo" class="text-xs text-gray-300 text-center hidden"></div><div id="autoCheckPanel" class="hidden"><button id="checkTxBtn" class="bg-green-700 w-full py-2 rounded-full">🔍 KIỂM TRA GIAO DỊCH</button></div><div id="manualPanel" class="hidden mt-2"><div class="text-amber-400 text-xs">⚠️ Nhập mã code thủ công</div><input id="manualCode" type="text" class="input text-sm mt-1"><button id="manualConfirmBtn" class="bg-yellow-600 w-full py-1 rounded-full text-sm mt-1">Xác nhận</button></div><div><div class="font-semibold text-cyan-400">📜 Lịch sử nạp</div><div id="depositHistory" class="max-h-40 overflow-auto text-sm mt-2"></div></div></div></div>
+      <div id="pageTopNap" class="page"><div class="glass p-5"><h2 class="text-xl font-bold text-center text-cyan-400">🏆 BXH NẠP</h2><div id="rankList" class="mt-3 space-y-2"></div></div></div>
+      <div id="pageCaNhan" class="page"><div class="glass p-5 space-y-4"><div class="flex justify-between"><span>🛍️ Đã mua</span><span id="profileSpCount" class="text-cyan-400">0</span></div><div class="flex justify-between"><span>📉 Tổng chi</span><span id="profileTotalChi" class="text-cyan-400">0đ</span></div><div class="flex justify-between"><span>📈 Tổng nạp</span><span id="profileTotalNap" class="text-cyan-400">0đ</span></div><hr><div><span class="font-bold">🔗 Giới thiệu (10%)</span><div class="flex gap-2 mt-2 bg-black/30 rounded-full p-2"><input id="refLink" type="text" readonly class="bg-transparent flex-1 text-xs"><button id="copyRefBtn" class="bg-purple-600 px-3 py-1 rounded-full text-xs">Copy</button></div><div class="mt-2">💰 Hoa hồng: <span id="userCommission" class="text-cyan-400">0đ</span></div></div><hr><div><span class="font-bold">📦 Key đã mua</span><div id="userInventory" class="max-h-48 overflow-auto mt-2 space-y-1"></div><div id="inventoryPagination" class="pagination"></div></div><button id="logoutBtn" class="w-full py-2 rounded-full bg-red-800/40 border border-red-500">🚪 Đăng xuất</button></div></div>
+      <div id="pageAdmin" class="page"><div class="glass p-5 max-h-[70vh] overflow-auto"><div class="text-red-400 font-bold text-xl">⚙️ ADMIN DASHBOARD</div>
+        <div class="admin-section"><div class="font-semibold text-cyan-400">📁 GAME</div><div id="adminGameList" class="max-h-32 overflow-auto"></div><div class="flex gap-2 mt-1"><input id="newGameName" class="input text-sm flex-1"><button id="addGameBtn" class="bg-green-600 px-3 py-1 rounded-full text-sm">Thêm</button></div></div>
+        <div class="admin-section"><div class="font-semibold text-cyan-400">🔑 GÓI KEY</div><select id="adminGameSelect" class="input text-sm"></select><div id="adminPackageList" class="max-h-32 overflow-auto mt-2"></div><div class="flex flex-wrap gap-2 mt-2"><input id="newPkgName" placeholder="Tên gói" class="input text-sm flex-1"><select id="newPkgDuration" class="input text-sm w-20"><option>Ngày</option><option>Tuần</option><option>Tháng</option></select><input id="newPkgPrice" type="number" placeholder="Giá" class="input text-sm w-24"><button id="addPackageBtn" class="bg-green-600 px-3 py-1 rounded-full text-sm">Thêm</button></div></div>
+        <div class="admin-section"><div class="font-semibold text-cyan-400">🏷️ MÃ GIẢM GIÁ</div><div class="flex flex-wrap gap-2 mb-2"><input id="newCouponCode" placeholder="Mã code" class="input text-sm flex-1"><select id="couponType" class="input text-sm w-24"><option value="percent">Giảm %</option><option value="fixed">Giảm tiền</option></select><input id="newCouponValue" type="number" placeholder="Giá trị" class="input text-sm w-28"><input id="couponExpiry" type="date" class="input text-sm w-32"><button id="addCouponBtn" class="bg-green-600 px-3 py-1 rounded-full text-sm">Thêm</button></div><div id="couponList" class="text-xs space-y-1 max-h-32 overflow-auto"></div></div>
+        <div class="admin-section"><div class="font-semibold text-cyan-400">💰 CỘNG TIỀN</div><input id="adminTargetUser" placeholder="Username" class="input text-sm"><input id="adminAmount" type="number" placeholder="Số tiền" class="input text-sm mt-1"><button id="addBalanceAdmin" class="bg-green-600 w-full py-1 rounded-full text-sm mt-1">Cộng</button></div>
+        <div class="admin-section"><div class="font-semibold text-cyan-400">📤 NHẬP KEY HÀNG LOẠT</div><select id="bulkPackageSelect" class="input text-sm"></select><textarea id="bulkKeys" rows="2" class="input text-sm mt-1" placeholder="Mỗi key 1 dòng"></textarea><button id="addBulkBtn" class="bg-purple-600 w-full py-1 rounded-full text-sm">Thêm key</button></div>
+        <div class="admin-section"><div class="font-semibold text-cyan-400">🗑️ XOÁ KEY</div><select id="deletePackageSelect" class="input text-sm"></select><div id="deleteKeysList" class="max-h-32 overflow-auto mt-2"></div><div class="flex gap-2 mt-2"><button id="deleteSelectedBtn" class="bg-red-600 text-sm px-3 py-1 rounded-full">Xoá chọn</button><button id="deleteAllBtn" class="bg-red-800 text-sm px-3 py-1 rounded-full">Xoá hết</button></div></div>
+        <div class="admin-section"><div class="font-semibold text-cyan-400">🏦 CẤU HÌNH BANK</div><input id="bankApiKey" placeholder="API Key (sieuthicode)" class="input text-sm"><input id="bankAccount" placeholder="Số tài khoản MB" class="input text-sm mt-1"><button id="saveBankConfig" class="bg-blue-800 w-full py-1 rounded-full text-sm mt-1">Lưu</button><div id="bankStatus" class="text-xs text-gray-400 mt-1"></div></div>
+        <div class="admin-section"><div class="font-semibold text-cyan-400">📢 THÔNG BÁO</div><textarea id="globalNotice" rows="2" class="input text-sm" placeholder="Fullscreen notice"></textarea><button id="saveNoticeBtn" class="bg-blue-600 w-full py-1 rounded-full text-sm mt-1">Lưu</button></div>
+      </div></div>
+    </div>
+  </div>
+
+  <div id="tabBar" class="tab-bar">
+    <div class="tab active" data-tab="MuaKey"><i class="fas fa-key"></i><span>Mua Key</span></div>
+    <div class="tab" data-tab="MuaAcc"><i class="fas fa-user"></i><span>Mua Acc</span></div>
+    <div class="tab" data-tab="NapTien"><i class="fas fa-coins"></i><span>Nạp Tiền</span></div>
+    <div class="tab" data-tab="TopNap"><i class="fas fa-trophy"></i><span>Top Nạp</span></div>
+    <div class="tab" data-tab="CaNhan"><i class="fas fa-user-circle"></i><span>Cá Nhân</span></div>
+    <div id="adminTab" class="tab hidden" data-tab="Admin"><i class="fas fa-shield-haltered"></i><span>Admin</span></div>
+  </div>
+</div>
+
+<div id="cartFloat" class="cart-float"><i class="fas fa-cart-shopping text-2xl"></i><span id="cartCount" class="cart-count">0</span></div>
+<div id="cartModal" class="modal"><div class="modal-card"><div class="flex justify-between"><h2 class="text-2xl font-bold text-cyan-400">🛒 Giỏ hàng</h2><button id="closeCartModal" class="text-white text-3xl">&times;</button></div><div id="cartItems" class="max-h-80 overflow-auto my-4"></div><div class="flex justify-between font-bold"><span>Tổng</span><span id="cartTotal" class="text-cyan-400">0đ</span></div><button id="checkoutCart" class="btn w-full mt-4 py-2">💎 Thanh toán</button><button id="clearCartBtn" class="bg-gray-700 w-full mt-2 py-2 rounded-full text-sm">Xóa giỏ</button></div></div>
+<div id="fullscreenModal" class="modal"><div class="modal-card"><i class="far fa-bell text-5xl text-cyan-400"></i><div id="fullscreenMsg" class="text-lg my-4"></div><button id="closeFullscreenBtn" class="btn px-6 py-2 rounded-full">Đóng</button></div></div>
+<div id="toastMsg" class="toast">✨ Thông báo</div>
+
+<script>
+// ==================== HIỆU ỨNG ====================
+(function createGlitter(){
+  const container = document.getElementById('glitterContainer');
+  if(!container) return;
+  for(let i=0;i<80;i++){
+    let star = document.createElement('i');
+    let size = Math.random() * 4 + 1;
+    star.style.width = size+'px';
+    star.style.height = size+'px';
+    star.style.left = Math.random()*100+'%';
+    star.style.top = Math.random()*100+'%';
+    star.style.animationDelay = Math.random()*5+'s';
+    star.style.animationDuration = Math.random()*3+1+'s';
+    container.appendChild(star);
+  }
+})();
+(function createSnow(){
+  const container = document.getElementById('snowLayer');
+  if(!container) return;
+  for(let i=0;i<30;i++){
+    const snow = document.createElement('div');
+    snow.classList.add('snow');
+    let size = Math.random() * 5 + 2;
+    snow.style.width = size+'px';
+    snow.style.height = size+'px';
+    snow.style.left = Math.random()*100+'%';
+    snow.style.animationDuration = Math.random()*5+3+'s';
+    snow.style.animationDelay = Math.random()*6+'s';
+    snow.style.opacity = Math.random()*0.6+0.2;
+    container.appendChild(snow);
+  }
+})();
+
+// ==================== FIREBASE ====================
+const firebaseConfig = {
+  apiKey: "AIzaSyADJ6aVVSUMslQS5fbGmAAs-p6q0T1Pt_I",
+  authDomain: "vntool.firebaseapp.com",
+  projectId: "vntool",
+  storageBucket: "vntool.firebasestorage.app",
+  messagingSenderId: "734096577112",
+  appId: "1:734096577112:web:18919e6fe684c2f140f02d",
+  measurementId: "G-WTMQ8CMF49"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+function showToast(msg, err = false) {
+  const toast = document.getElementById('toastMsg');
+  if(!toast) return;
+  toast.innerText = msg;
+  toast.style.borderLeftColor = err ? '#f97316' : 'cyan';
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+function showKeyModal(keys) {
+  let modal = document.createElement('div');
+  modal.className = "modal active";
+  modal.innerHTML = `<div class="modal-card"><div class="text-2xl font-bold text-cyan-400 mb-2">✅ MUA THÀNH CÔNG</div><div class="max-h-60 overflow-auto text-left">${keys.map(k=>`<div class="bg-black/40 p-2 rounded my-1 font-mono break-all">${k}</div>`).join('')}</div><button class="btn w-full mt-4 closeModalBtn">Đóng</button></div>`;
+  document.body.appendChild(modal);
+  modal.querySelector('.closeModalBtn').onclick = () => modal.remove();
+}
+function showFullscreen(m) {
+  const msgDiv = document.getElementById('fullscreenMsg');
+  if(msgDiv) msgDiv.innerText = m;
+  const modal = document.getElementById('fullscreenModal');
+  if(modal) modal.classList.add('active');
+}
+
+// ==================== TELEGRAM USER ====================
+let currentUser = null;
+const ADMIN_TELEGRAM_ID = 8603972323; // 👈 ID admin
+
+async function getCurrentUser() {
+  try {
+    const tg = window.Telegram?.WebApp;
+    if (!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user) {
+      console.warn("Telegram WebApp not available, using fallback demo user");
+      // Fallback cho môi trường local/test
+      return { id: 999999, username: "test", name: "Test User", balance: 0, role: "user", commission: 0 };
+    }
+    const tgUser = tg.initDataUnsafe.user;
+    const userRef = db.ref(`users/${tgUser.id}`);
+    const snapshot = await userRef.once('value');
+    let user = snapshot.val();
+    if (!user) {
+      user = {
+        id: tgUser.id,
+        username: tgUser.username || '',
+        name: tgUser.first_name || '',
+        balance: 0,
+        role: tgUser.id === ADMIN_TELEGRAM_ID ? 'admin' : 'user',
+        commission: 0
+      };
+      await userRef.set(user);
+    }
+    return user;
+  } catch (err) {
+    console.error("getCurrentUser error:", err);
+    showToast("Lỗi kết nối Firebase", true);
+    return null;
+  }
+}
+
+// ==================== GLOBAL ====================
+let games = [], packages = {}, selectedGame = null, selectedPkg = null, quantity = 1, currentCoupon = null;
+
+async function loadGames() {
+  try {
+    const gamesSnap = await db.ref('games').once('value');
+    const packagesSnap = await db.ref('packages').once('value');
+    games = gamesSnap.exists() ? Object.values(gamesSnap.val()) : [];
+    packages = packagesSnap.exists() ? packagesSnap.val() : {};
+    renderGameList();
+  } catch (err) {
+    console.error("loadGames error:", err);
+    showToast("Lỗi tải dữ liệu", true);
+  }
+}
+function renderGameList() {
+  const container = document.getElementById('gameList');
+  if(!container) return;
+  container.innerHTML = '';
+  games.forEach(g => {
+    const div = document.createElement('div');
+    div.className = 'game-card';
+    div.innerText = g.name;
+    div.onclick = () => {
+      document.querySelectorAll('.game-card').forEach(c => c.classList.remove('selected'));
+      div.classList.add('selected');
+      selectedGame = g;
+      document.getElementById('selectedGameLabel').innerText = g.name;
+      selectedPkg = null;
+      document.getElementById('selectedPkgLabel').innerText = '---';
+      document.getElementById('packageArea').classList.remove('hidden');
+      renderPackages(g.id);
+      updateTotal();
+    };
+    container.appendChild(div);
+  });
+}
+function renderPackages(gameId) {
+  const pkgs = Object.values(packages).filter(p => p.gameId === gameId);
+  const container = document.getElementById('packageList');
+  if(!container) return;
+  container.innerHTML = '';
+  pkgs.forEach(p => {
+    const chip = document.createElement('div');
+    chip.className = 'pkg-chip';
+    chip.innerText = `${p.name} - ${p.price.toLocaleString('vi-VN')}đ`;
+    chip.onclick = () => {
+      document.querySelectorAll('.pkg-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      selectedPkg = p;
+      document.getElementById('selectedPkgLabel').innerText = `${p.name} - ${p.price.toLocaleString('vi-VN')}đ`;
+      updateTotal();
+    };
+    container.appendChild(chip);
+  });
+}
+async function getStock(packageId) {
+  try {
+    const snap = await db.ref(`keys/${packageId}`).once('value');
+    const keysObj = snap.val() || {};
+    return Object.values(keysObj).filter(k => !k.sold).length;
+  } catch (err) {
+    console.error("getStock error:", err);
+    return 0;
+  }
+}
+document.getElementById('qtyMinus').onclick = () => { if (quantity > 1) { quantity--; document.getElementById('qtyValue').innerText = quantity; updateTotal(); } };
+document.getElementById('qtyPlus').onclick = () => { if (quantity < 99) { quantity++; document.getElementById('qtyValue').innerText = quantity; updateTotal(); } };
+document.getElementById('applyCoupon').onclick = async () => {
+  const code = document.getElementById('couponInput').value.trim().toUpperCase();
+  try {
+    const couponsSnap = await db.ref('coupons').once('value');
+    const coupons = couponsSnap.val() || {};
+    const found = Object.values(coupons).find(c => c.code === code && c.active && (!c.expiry || c.expiry > Date.now()));
+    if (found) {
+      currentCoupon = found;
+      const msg = found.type === 'percent' ? `Giảm ${found.value}%` : `Giảm ${found.value.toLocaleString('vi-VN')}đ`;
+      document.getElementById('couponInfo').innerText = msg;
+      document.getElementById('couponInfo').classList.remove('hidden');
+      updateTotal();
+    } else {
+      showToast("Mã không hợp lệ hoặc hết hạn", true);
+      currentCoupon = null;
+      document.getElementById('couponInfo').classList.add('hidden');
+      updateTotal();
+    }
+  } catch (err) {
+    console.error(err);
+    showToast("Lỗi kiểm tra mã", true);
+  }
+};
+function updateTotal() {
+  if (!selectedPkg) { document.getElementById('totalPrice').innerText = '0đ'; return; }
+  let total = selectedPkg.price * quantity;
+  if (currentCoupon) {
+    if (currentCoupon.type === 'percent') total = Math.floor(total * (100 - currentCoupon.value) / 100);
+    else total = Math.max(0, total - currentCoupon.value);
+  }
+  document.getElementById('totalPrice').innerText = total.toLocaleString('vi-VN') + 'đ';
+}
+document.getElementById('buyNowBtn').onclick = async () => {
+  if (!selectedGame || !selectedPkg) { showToast("Chọn game và gói trước", true); return; }
+  let total = selectedPkg.price * quantity;
+  if (currentCoupon) {
+    if (currentCoupon.type === 'percent') total = Math.floor(total * (100 - currentCoupon.value) / 100);
+    else total = Math.max(0, total - currentCoupon.value);
+  }
+  try {
+    const stock = await getStock(selectedPkg.id);
+    if (stock < quantity) { showToast("Hết key", true); return; }
+    if (!currentUser) currentUser = await getCurrentUser();
+    if (!currentUser) { showToast("Không thể xác định user", true); return; }
+    if (currentUser.balance < total) { showToast(`Số dư không đủ! Cần ${total.toLocaleString('vi-VN')}đ`, true); return; }
+    const keysRef = db.ref(`keys/${selectedPkg.id}`);
+    const snap = await keysRef.once('value');
+    let keysObj = snap.val() || {};
+    let available = Object.entries(keysObj).filter(([_, k]) => !k.sold);
+    if (available.length < quantity) { showToast("Hết key", true); return; }
+    const bought = available.slice(0, quantity);
+    const boughtKeyValues = bought.map(([_, k]) => k.key_value);
+    const updates = {};
+    for (let [kid, k] of bought) {
+      updates[`${selectedPkg.id}/${kid}/sold`] = true;
+      updates[`${selectedPkg.id}/${kid}/buyerId`] = currentUser.id;
+    }
+    await db.ref('keys').update(updates);
+    const userRef = db.ref(`users/${currentUser.id}`);
+    await userRef.transaction(user => { if (user && user.balance >= total) { user.balance -= total; return user; } return user; });
+    const updatedSnap = await userRef.once('value');
+    currentUser = updatedSnap.val();
+    const purchase = {
+      userId: currentUser.id,
+      gameId: selectedGame.id,
+      gameName: selectedGame.name,
+      packageId: selectedPkg.id,
+      packageName: selectedPkg.name,
+      keys: boughtKeyValues,
+      price: total,
+      orderId: 'HD' + Date.now(),
+      date: new Date().toISOString()
+    };
+    await db.ref('purchases').push(purchase);
+    showToast(`✅ Mua thành công! Số dư: ${currentUser.balance.toLocaleString('vi-VN')}đ`);
+    showKeyModal(boughtKeyValues);
+    loadProfile();
+    if (document.getElementById('pageCaNhan').classList.contains('active')) loadPurchases(1);
+  } catch (err) {
+    console.error(err);
+    showToast("Lỗi xử lý mua hàng", true);
+  }
+};
+
+// ==================== GIỎ HÀNG ====================
+let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+function updateCartUI() {
+  const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+  document.getElementById('cartCount').innerText = cart.reduce((a,b)=>a+b.quantity,0);
+  let total = cart.reduce((a,b)=>a+b.price*b.quantity,0);
+  document.getElementById('cartTotal').innerText = total.toLocaleString('vi-VN')+'đ';
+  document.getElementById('cartItems').innerHTML = cart.map((item,idx)=>`
+    <div class="cart-item"><div><b>${item.gameName} - ${item.packageName}</b><div>SL: ${item.quantity} x ${item.price.toLocaleString('vi-VN')}đ</div></div><div><button class="text-red-400 text-xs mr-2" onclick="removeFromCart(${idx})">Xóa</button><button class="text-blue-400 text-xs" onclick="changeCartQty(${idx},-1)">-1</button><button class="text-blue-400 text-xs ml-2" onclick="changeCartQty(${idx},1)">+1</button></div></div>
+  `).join('');
+}
+window.removeFromCart = (idx) => { let cart = JSON.parse(localStorage.getItem('cart')||'[]'); cart.splice(idx,1); localStorage.setItem('cart',JSON.stringify(cart)); updateCartUI(); };
+window.changeCartQty = (idx,delta) => { let cart = JSON.parse(localStorage.getItem('cart')||'[]'); let newQty = cart[idx].quantity+delta; if(newQty<1) cart.splice(idx,1); else cart[idx].quantity=newQty; localStorage.setItem('cart',JSON.stringify(cart)); updateCartUI(); };
+document.getElementById('addToCartBtn').onclick = () => {
+  if (!selectedGame || !selectedPkg) { showToast("Chọn game và gói", true); return; }
+  let cart = JSON.parse(localStorage.getItem('cart')||'[]');
+  let exist = cart.find(i=>i.gameId===selectedGame.id && i.packageId===selectedPkg.id);
+  if(exist) exist.quantity += quantity;
+  else cart.push({gameId:selectedGame.id, gameName:selectedGame.name, packageId:selectedPkg.id, packageName:selectedPkg.name, price:selectedPkg.price, quantity});
+  localStorage.setItem('cart',JSON.stringify(cart));
+  updateCartUI();
+  showToast("Đã thêm vào giỏ");
+};
+document.getElementById('checkoutCart').onclick = async () => {
+  let cart = JSON.parse(localStorage.getItem('cart')||'[]');
+  if(cart.length===0){ showToast("Giỏ trống",true); return; }
+  let total = cart.reduce((a,b)=>a+b.price*b.quantity,0);
+  if(!currentUser) currentUser = await getCurrentUser();
+  if(!currentUser) { showToast("Lỗi user", true); return; }
+  if(currentUser.balance < total){ showToast("Số dư không đủ",true); return; }
+  let allKeys = [];
+  try {
+    for(let item of cart){
+      const keysRef = db.ref(`keys/${item.packageId}`);
+      const snap = await keysRef.once('value');
+      let keysObj = snap.val()||{};
+      let available = Object.entries(keysObj).filter(([_,k])=>!k.sold);
+      if(available.length < item.quantity){ showToast(`Hết key cho ${item.gameName}`,true); return; }
+      let bought = available.slice(0, item.quantity);
+      let boughtVals = bought.map(([_,k])=>k.key_value);
+      allKeys.push(...boughtVals);
+      let updates = {};
+      for(let [kid,k] of bought){
+        updates[`${item.packageId}/${kid}/sold`]=true;
+        updates[`${item.packageId}/${kid}/buyerId`]=currentUser.id;
+      }
+      await db.ref('keys').update(updates);
+      let purchase = {
+        userId: currentUser.id,
+        gameId: item.gameId,
+        gameName: item.gameName,
+        packageId: item.packageId,
+        packageName: item.packageName,
+        keys: boughtVals,
+        price: item.price*item.quantity,
+        orderId: 'HD'+Date.now(),
+        date: new Date().toISOString()
+      };
+      await db.ref('purchases').push(purchase);
+    }
+    const userRef = db.ref(`users/${currentUser.id}`);
+    await userRef.transaction(user => { if(user && user.balance>=total){ user.balance -= total; return user; } return user; });
+    const updatedSnap = await userRef.once('value');
+    currentUser = updatedSnap.val();
+    localStorage.setItem('cart','[]');
+    updateCartUI();
+    showToast(`✅ Thanh toán thành công! Số dư mới: ${currentUser.balance.toLocaleString('vi-VN')}đ`);
+    showKeyModal(allKeys);
+    loadProfile();
+    if(document.getElementById('pageCaNhan').classList.contains('active')) loadPurchases(1);
+  } catch(err) {
+    console.error(err);
+    showToast("Lỗi thanh toán", true);
+  }
+};
+document.getElementById('clearCartBtn').onclick = () => { localStorage.setItem('cart','[]'); updateCartUI(); showToast("Đã xóa giỏ"); };
+document.getElementById('cartFloat').onclick = () => document.getElementById('cartModal').classList.add('active');
+document.getElementById('closeCartModal').onclick = () => document.getElementById('cartModal').classList.remove('active');
+updateCartUI();
+
+// ==================== PROFILE ====================
+async function loadProfile() {
+  if(!currentUser) currentUser = await getCurrentUser();
+  if(!currentUser) return;
+  document.getElementById('profileTotalNap').innerText = (currentUser.balance||0).toLocaleString('vi-VN')+'đ';
+  document.getElementById('refLink').value = `https://t.me/sellerhdang_bot?start=${currentUser.id}`;
+  document.getElementById('userCommission').innerText = (currentUser.commission||0).toLocaleString('vi-VN')+'đ';
+}
+document.getElementById('copyRefBtn').onclick = () => { navigator.clipboard.writeText(document.getElementById('refLink').value); showToast("Đã copy link"); };
+
+let purchasePage = 1;
+async function loadPurchases(page=1) {
+  if(!currentUser) return;
+  try {
+    const snap = await db.ref('purchases').once('value');
+    let all = snap.val() ? Object.values(snap.val()) : [];
+    let mine = all.filter(p => p.userId === currentUser.id).reverse();
+    let limit = 5;
+    let start = (page-1)*limit;
+    let paginated = mine.slice(start, start+limit);
+    document.getElementById('userInventory').innerHTML = paginated.map(p => `
+      <div class="key-box"><div><b>${p.gameName} - ${p.packageName}</b><div class="text-xs">Mã đơn: ${p.orderId}</div></div><div class="text-xs break-all">Key: ${p.keys.join(', ')}</div><div class="text-right">${p.price.toLocaleString('vi-VN')}đ</div></div>
+    `).join('');
+    document.getElementById('profileSpCount').innerText = mine.length;
+    let totalChi = mine.reduce((s,p)=>s+p.price,0);
+    document.getElementById('profileTotalChi').innerText = totalChi.toLocaleString('vi-VN')+'đ';
+    let totalPages = Math.ceil(mine.length/limit);
+    let pagDiv = document.getElementById('inventoryPagination');
+    pagDiv.innerHTML = '';
+    for(let i=1;i<=totalPages;i++){
+      let btn = document.createElement('button');
+      btn.innerText = i;
+      btn.className = `page-btn ${i===page?'active':''}`;
+      btn.onclick = () => loadPurchases(i);
+      pagDiv.appendChild(btn);
+    }
+  } catch(err) {
+    console.error(err);
+  }
+}
+async function loadRanking() {
+  try {
+    const usersSnap = await db.ref('users').once('value');
+    let users = usersSnap.val() || {};
+    let arr = Object.values(users).sort((a,b)=>(b.balance||0)-(a.balance||0)).slice(0,10);
+    document.getElementById('rankList').innerHTML = arr.map((u,i)=>`
+      <div class="flex justify-between"><span>${i===0?"🥇":i===1?"🥈":i===2?"🥉":`#${i+1}`} ${u.name||u.username}</span><span class="text-cyan-400">${(u.balance||0).toLocaleString('vi-VN')}đ</span></div>
+    `).join('');
+  } catch(err){ console.error(err); }
+}
+async function loadDeposits() {
+  if(!currentUser) return;
+  try {
+    const snap = await db.ref('deposits').once('value');
+    let all = snap.val() ? Object.values(snap.val()) : [];
+    let mine = all.filter(d => d.userId === currentUser.id);
+    document.getElementById('depositHistory').innerHTML = mine.map(d => `<div class="flex justify-between"><span>${d.note}</span><span>${d.amount.toLocaleString('vi-VN')}đ</span><span class="text-xs">${new Date(d.time).toLocaleString()}</span></div>`).join('') || "Chưa có";
+  } catch(err){ console.error(err); }
+}
+
+// ==================== AUTO BANK (tóm gọn) ====================
+let currentQR = null, bankInterval = null;
+async function checkRealTransaction(amount, desc) {
+  try {
+    const bankSnap = await db.ref('bank_config').once('value');
+    const bank = bankSnap.val() || {};
+    if(!bank.apiKey || !bank.accountNumber) return false;
+    let url = `https://api.sieuthicode.net/api/mbbank/transactions?accountNumber=${bank.accountNumber}&token=${bank.apiKey}`;
+    let res = await fetch(url);
+    let data = await res.json();
+    if(data.status===200 && data.transactions){
+      return data.transactions.some(tx => tx.creditAmount >= amount && tx.transactionContent && tx.transactionContent.includes(desc));
+    }
+    return false;
+  } catch(e){ return false; }
+}
+async function addDeposit(amount) {
+  if(!currentUser) currentUser = await getCurrentUser();
+  if(!currentUser) return;
+  const userRef = db.ref(`users/${currentUser.id}`);
+  await userRef.transaction(user => { if(user){ user.balance = (user.balance||0) + amount; return user; } return user; });
+  const updated = await userRef.once('value');
+  currentUser = updated.val();
+  const deposit = { userId: currentUser.id, amount, note: `Nạp ${amount.toLocaleString('vi-VN')}đ tự động`, time: Date.now() };
+  await db.ref('deposits').push(deposit);
+  showToast(`✅ Nạp ${amount.toLocaleString('vi-VN')}đ thành công!`);
+  loadProfile(); loadRanking(); loadDeposits();
+}
+document.getElementById('createQrBtn').onclick = async () => {
+  let amount = parseInt(document.getElementById('depositAmount').value);
+  if(isNaN(amount)||amount<2000){ showToast("Số tiền tối thiểu 2.000đ",true); return; }
+  if(!currentUser) currentUser = await getCurrentUser();
+  const bankSnap = await db.ref('bank_config').once('value');
+  const bank = bankSnap.val() || {};
+  if(!bank.accountNumber){ showToast("Admin chưa cấu hình số tài khoản",true); return; }
+  let desc = `NAP${currentUser.id}${Date.now()}`;
+  let qrUrl = `https://img.vietqr.io/image/MB-${bank.accountNumber}-compact.png?amount=${amount}&addInfo=${encodeURIComponent(desc)}`;
+  document.getElementById('qrCode').innerHTML = `<img src="${qrUrl}" width="150">`;
+  document.getElementById('qrArea').classList.remove('hidden');
+  document.getElementById('qrInfo').innerHTML = `Chuyển <b>${amount.toLocaleString('vi-VN')}đ</b><br>Nội dung: ${desc}`;
+  document.getElementById('qrInfo').classList.remove('hidden');
+  document.getElementById('autoCheckPanel').classList.remove('hidden');
+  document.getElementById('manualPanel').classList.add('hidden');
+  currentQR = { amount, desc };
+  if(bankInterval) clearInterval(bankInterval);
+  let attempts = 0;
+  bankInterval = setInterval(async () => {
+    let ok = await checkRealTransaction(amount, desc);
+    if(ok){
+      clearInterval(bankInterval);
+      addDeposit(amount);
+      document.getElementById('qrArea').classList.add('hidden');
+      document.getElementById('autoCheckPanel').classList.add('hidden');
+    } else {
+      attempts++;
+      if(attempts>=12){
+        clearInterval(bankInterval);
+        document.getElementById('autoCheckPanel').classList.add('hidden');
+        document.getElementById('manualPanel').classList.remove('hidden');
+        showToast("Không thấy giao dịch, nhập mã thủ công", true);
+      }
+    }
+  }, 10000);
+};
+document.getElementById('checkTxBtn').onclick = async () => {
+  if(!currentQR) return;
+  let ok = await checkRealTransaction(currentQR.amount, currentQR.desc);
+  if(ok){ addDeposit(currentQR.amount); document.getElementById('qrArea').classList.add('hidden'); document.getElementById('autoCheckPanel').classList.add('hidden'); if(bankInterval) clearInterval(bankInterval); }
+  else showToast("Chưa thấy giao dịch", true);
+};
+document.getElementById('manualConfirmBtn').onclick = () => {
+  let code = document.getElementById('manualCode').value.trim();
+  if(!code){ showToast("Nhập mã code", true); return; }
+  addDeposit(currentQR.amount);
+  document.getElementById('qrArea').classList.add('hidden');
+  document.getElementById('autoCheckPanel').classList.add('hidden');
+  document.getElementById('manualPanel').classList.add('hidden');
+  if(bankInterval) clearInterval(bankInterval);
+};
+
+// ==================== ADMIN (tóm gọn giữ nguyên logic cũ) ====================
+async function loadAdminData() {
+  if(!currentUser || currentUser.role !== 'admin') return;
+  // ... giữ nguyên code admin như cũ, nhưng đã có try/catch ở trên. 
+  // Vì dài, tôi giữ lại y hệt bản trước, chỉ thêm try/catch bọc ngoài nếu cần.
+  // Ở đây tôi sẽ viết lại một số phần chính để tránh lỗi.
+  try {
+    const gamesSnap = await db.ref('games').once('value');
+    const gamesObj = gamesSnap.val() || {};
+    const adminGameDiv = document.getElementById('adminGameList');
+    adminGameDiv.innerHTML = '';
+    for(let [id,g] of Object.entries(gamesObj)){
+      adminGameDiv.innerHTML += `<div class="flex justify-between"><span>${g.name}</span><button class="bg-red-600 text-xs px-3 py-1 rounded-full del-game" data-id="${id}">Xóa</button></div>`;
+    }
+    document.querySelectorAll('.del-game').forEach(btn => {
+      btn.onclick = async () => {
+        if(confirm("Xóa game?")){
+          await db.ref(`games/${btn.dataset.id}`).remove();
+          await loadAdminData();
+          loadGames();
+        }
+      };
+    });
+    const gameSelect = document.getElementById('adminGameSelect');
+    gameSelect.innerHTML = '';
+    for(let [id,g] of Object.entries(gamesObj)){
+      gameSelect.innerHTML += `<option value="${id}">${g.name}</option>`;
+    }
+    const pkgsSnap = await db.ref('packages').once('value');
+    const pkgsObj = pkgsSnap.val() || {};
+    const pkgDiv = document.getElementById('adminPackageList');
+    pkgDiv.innerHTML = '';
+    for(let [id,p] of Object.entries(pkgsObj)){
+      pkgDiv.innerHTML += `<div class="flex justify-between"><span>${p.name} - ${p.price.toLocaleString('vi-VN')}đ</span><button class="bg-red-600 text-xs px-3 py-1 rounded-full del-pkg" data-id="${id}">Xóa</button></div>`;
+    }
+    document.querySelectorAll('.del-pkg').forEach(btn => {
+      btn.onclick = async () => {
+        if(confirm("Xóa gói?")){
+          await db.ref(`packages/${btn.dataset.id}`).remove();
+          await loadAdminData();
+          loadGames();
+        }
+      };
+    });
+    const bulkSelect = document.getElementById('bulkPackageSelect');
+    bulkSelect.innerHTML = '';
+    for(let [id,p] of Object.entries(pkgsObj)){
+      bulkSelect.innerHTML += `<option value="${id}">${p.name}</option>`;
+    }
+    const delSelect = document.getElementById('deletePackageSelect');
+    delSelect.innerHTML = '';
+    for(let [id,p] of Object.entries(pkgsObj)){
+      delSelect.innerHTML += `<option value="${id}">${p.name}</option>`;
+    }
+    delSelect.onchange = async () => {
+      const pkgId = delSelect.value;
+      if(!pkgId) return;
+      const keysSnap = await db.ref(`keys/${pkgId}`).once('value');
+      const keysObj = keysSnap.val() || {};
+      const container = document.getElementById('deleteKeysList');
+      container.innerHTML = Object.entries(keysObj).map(([kid, k]) => `<div><label><input type="checkbox" class="del-check" data-idx="${kid}"><span class="ml-2 text-sm">${k.key_value}</span></label></div>`).join('');
+    };
+    const couponsSnap = await db.ref('coupons').once('value');
+    const couponsObj = couponsSnap.val() || {};
+    const couponDiv = document.getElementById('couponList');
+    couponDiv.innerHTML = '';
+    for(let [code,c] of Object.entries(couponsObj)){
+      couponDiv.innerHTML += `<div class="flex justify-between">${c.code} - ${c.type==='percent'?c.value+'%':c.value.toLocaleString('vi-VN')+'đ'} <button class="text-red-400 text-xs del-coupon" data-code="${c.code}">Xóa</button></div>`;
+    }
+    document.querySelectorAll('.del-coupon').forEach(btn => {
+      btn.onclick = async () => {
+        await db.ref(`coupons/${btn.dataset.code}`).remove();
+        await loadAdminData();
+      };
+    });
+    const bankSnap = await db.ref('bank_config').once('value');
+    const bank = bankSnap.val() || {};
+    document.getElementById('bankApiKey').value = bank.apiKey || '';
+    document.getElementById('bankAccount').value = bank.accountNumber || '';
+  } catch(err){ console.error(err); }
+}
+document.getElementById('addGameBtn').onclick = async () => {
+  let name = document.getElementById('newGameName').value.trim();
+  if(!name){ showToast("Nhập tên game",true); return; }
+  let newId = 'g'+Date.now();
+  await db.ref(`games/${newId}`).set({ id: newId, name });
+  await loadAdminData();
+  loadGames();
+  document.getElementById('newGameName').value = '';
+};
+document.getElementById('addPackageBtn').onclick = async () => {
+  let gameId = document.getElementById('adminGameSelect').value;
+  let name = document.getElementById('newPkgName').value.trim();
+  let dur = document.getElementById('newPkgDuration').value;
+  let price = parseInt(document.getElementById('newPkgPrice').value);
+  if(!name || isNaN(price)){ showToast("Nhập đủ",true); return; }
+  let newId = 'p'+Date.now();
+  let durText = dur==='Ngày'?'Ngày':dur==='Tuần'?'Tuần':'Tháng';
+  await db.ref(`packages/${newId}`).set({ id: newId, gameId, name: `${name} (${durText})`, price });
+  await loadAdminData();
+  loadGames();
+  document.getElementById('newPkgName').value = '';
+  document.getElementById('newPkgPrice').value = '';
+};
+document.getElementById('addBulkBtn').onclick = async () => {
+  let pkgId = document.getElementById('bulkPackageSelect').value;
+  let keys = document.getElementById('bulkKeys').value.split('\n').filter(k=>k.trim());
+  if(!pkgId || keys.length===0){ showToast("Chọn gói và nhập key",true); return; }
+  for(let k of keys){
+    let newRef = db.ref(`keys/${pkgId}`).push();
+    await newRef.set({ key_value: k.trim(), sold: false });
+  }
+  showToast(`Đã thêm ${keys.length} key`);
+  document.getElementById('bulkKeys').value = '';
+};
+document.getElementById('deleteSelectedBtn').onclick = async () => {
+  let pkgId = document.getElementById('deletePackageSelect').value;
+  if(!pkgId) return;
+  let checks = document.querySelectorAll('#deleteKeysList input[type="checkbox"]:checked');
+  let kids = Array.from(checks).map(cb => cb.dataset.idx);
+  if(kids.length === 0) return;
+  for(let kid of kids){
+    await db.ref(`keys/${pkgId}/${kid}`).remove();
+  }
+  showToast(`Đã xóa ${kids.length} key`);
+  document.getElementById('deletePackageSelect').dispatchEvent(new Event('change'));
+};
+document.getElementById('deleteAllBtn').onclick = async () => {
+  let pkgId = document.getElementById('deletePackageSelect').value;
+  if(!pkgId) return;
+  if(confirm("Xóa tất cả key?")){
+    await db.ref(`keys/${pkgId}`).set(null);
+    showToast("Đã xóa tất cả key");
+    document.getElementById('deletePackageSelect').dispatchEvent(new Event('change'));
+  }
+};
+document.getElementById('addBalanceAdmin').onclick = async () => {
+  let username = document.getElementById('adminTargetUser').value.trim();
+  let amount = parseInt(document.getElementById('adminAmount').value);
+  if(!username || isNaN(amount)){ showToast("Nhập đủ",true); return; }
+  const usersSnap = await db.ref('users').once('value');
+  const users = usersSnap.val() || {};
+  let target = Object.values(users).find(u => u.username === username);
+  if(!target){ showToast("Không tìm thấy user",true); return; }
+  const userRef = db.ref(`users/${target.id}`);
+  await userRef.transaction(user => { if(user){ user.balance = (user.balance||0)+amount; return user; } return user; });
+  showToast(`Đã cộng ${amount.toLocaleString('vi-VN')}đ cho ${username}`);
+  if(currentUser && currentUser.id === target.id){
+    const updated = await userRef.once('value');
+    currentUser = updated.val();
+    loadProfile();
+  }
+  loadRanking();
+};
+document.getElementById('saveBankConfig').onclick = async () => {
+  let api = document.getElementById('bankApiKey').value.trim();
+  let acc = document.getElementById('bankAccount').value.trim();
+  await db.ref('bank_config/apiKey').set(api);
+  await db.ref('bank_config/accountNumber').set(acc);
+  showToast("Đã lưu cấu hình bank");
+  document.getElementById('bankStatus').innerHTML = api ? "✅ Đã cấu hình" : "⚠️ Chưa cấu hình";
+};
+document.getElementById('addCouponBtn').onclick = async () => {
+  let code = document.getElementById('newCouponCode').value.trim().toUpperCase();
+  let type = document.getElementById('couponType').value;
+  let value = parseFloat(document.getElementById('newCouponValue').value);
+  let expiryDate = document.getElementById('couponExpiry').value;
+  if(!code || isNaN(value) || value<=0){ showToast("Nhập đủ",true); return; }
+  if(type==='percent' && value>100){ showToast("Phần trăm không quá 100%",true); return; }
+  let expiry = expiryDate ? new Date(expiryDate).getTime() : null;
+  await db.ref(`coupons/${code}`).set({ code, type, value, expiry, active: true });
+  await loadAdminData();
+  showToast("Thêm mã giảm giá thành công");
+  document.getElementById('newCouponCode').value = '';
+  document.getElementById('newCouponValue').value = '';
+  document.getElementById('couponExpiry').value = '';
+};
+document.getElementById('saveNoticeBtn').onclick = async () => {
+  let content = document.getElementById('globalNotice').value;
+  await db.ref('settings/fullscreenNotice').set(content);
+  showToast("Đã lưu thông báo");
+};
+
+// ==================== SWITCH TAB ====================
+function switchTab(tabId){
+  document.querySelectorAll('#pageContainer .page').forEach(p => p.classList.remove('active'));
+  document.getElementById(`page${tabId}`).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
+  if(tabId === 'CaNhan') { loadProfile(); loadPurchases(purchasePage); }
+  if(tabId === 'TopNap') loadRanking();
+  if(tabId === 'NapTien') loadDeposits();
+  if(tabId === 'Admin') loadAdminData();
+}
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => switchTab(tab.getAttribute('data-tab')));
+});
+document.getElementById('logoutBtn').onclick = () => {
+  localStorage.clear();
+  if(window.Telegram?.WebApp) window.Telegram.WebApp.close();
+  else window.location.reload();
+};
+
+// ==================== INIT ====================
+(async () => {
+  try {
+    currentUser = await getCurrentUser();
+    if(currentUser && currentUser.role === 'admin') document.getElementById('adminTab').classList.remove('hidden');
+    await loadGames();
+    loadProfile();
+    loadRanking();
+    loadDeposits();
+    loadPurchases(1);
+    switchTab('MuaKey');
+    const settingsSnap = await db.ref('settings/fullscreenNotice').once('value');
+    const notice = settingsSnap.val();
+    if(notice) showFullscreen(notice);
+    document.getElementById('closeFullscreenBtn').onclick = () => document.getElementById('fullscreenModal').classList.remove('active');
+  } catch (err) {
+    console.error("Init error:", err);
+    showToast("Lỗi khởi tạo, thử tải lại trang", true);
+  } finally {
+    // Ẩn loading sau 1s hoặc ngay khi xong
+    setTimeout(() => {
+      const ld = document.getElementById('loading');
+      if(ld) { ld.style.opacity = '0'; setTimeout(() => ld.style.display = 'none', 500); }
+    }, 500);
+  }
+})();
+</script>
+</body>
+</html>
